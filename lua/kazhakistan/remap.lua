@@ -25,7 +25,6 @@ vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
 vim.keymap.set("x", "<leader>p", [["_dP]])
-
 vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
 vim.keymap.set("n", "<leader>Y", [["+Y]])
 
@@ -34,3 +33,24 @@ vim.keymap.set({"n", "v"}, "<leader>d", [["_d]])
 vim.keymap.set("i", "<C-c>", "<Esc>")
 
 vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
+
+vim.keymap.set("n", "<M-h>", "<cmd>vertical resize -2<cr>", { desc = "Resize: narrower" })
+vim.keymap.set("n", "<M-l>", "<cmd>vertical resize +2<cr>", { desc = "Resize: wider" })
+vim.keymap.set("n", "<M-j>", "<cmd>resize -1<cr>", { desc = "Resize: taller" })
+vim.keymap.set("n", "<M-k>", "<cmd>resize +1<cr>", { desc = "Resize: shorter" })
+
+vim.keymap.set("n", "<leader>=", "<C-w>=", { desc = "Resize: equalize" })
+
+vim.keymap.set("n", "<leader>sv", "<cmd>vsplit<cr>", { desc = "Split: vertical" })
+vim.keymap.set("n", "<leader>sh", "<cmd>split<cr>", { desc = "Split: horizontal" })
+
+vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Window: left" })
+vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Window: down" })
+vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Window: up" })
+vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Window: right" })
+
+vim.keymap.set("n", "<leader>tn", "<cmd>tabnew<cr>", { desc = "Tab: new" })
+vim.keymap.set("n", "<leader>tc", "<cmd>tabclose<cr>", { desc = "Tab: close" })
+vim.keymap.set("n", "<leader>to", "<cmd>tabonly<cr>", { desc = "Tab: close others" })
+vim.keymap.set("n", "<M-,>", "gT", { desc = "Tab: next" })
+vim.keymap.set("n", "<M-.>", "gv", { desc = "Tab: prev" })
