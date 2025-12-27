@@ -1,0 +1,26 @@
+vim.g.copilot_no_tab_map = true
+vim.g.copilot_assume_mapped = true
+
+vim.keymap.set("i", "<C-j>", "copilot#Accept('<CR>')", {
+    expr = true,
+    silent = true,
+    noremap = true,
+    replace_keycodes = false,
+})
+
+vim.keymap.set("i", "<M-]", "copilot#Next()", {
+    expr = true,
+    silent = true,
+    noremap = true,
+})
+vim.keymap.set("i", "<M-[>", "copilot#Previous()", {
+    expr = true,
+    silent = true,
+    noremap = true,
+})
+
+vim.keymap.set("i", "<C-]>", "copilot#Dismiss()", {
+    expr = true,
+    silent = true,
+    noremap = true,
+})
