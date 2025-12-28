@@ -83,6 +83,13 @@ vim.lsp.config("lua_ls", {
   },
 })
 
+vim.lsp.config("clangd", {
+    cmd = {
+        "clangd",
+        "--query-driver=C:/msys64/ucrt64/bin/g++.exe,C:/msys64/ucrt64/bin/gcc.exe",
+    }
+})
+
 -- Finally enable all configs
 vim.lsp.enable(servers)
 
