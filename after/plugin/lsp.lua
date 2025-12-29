@@ -16,7 +16,6 @@ mason.setup({
 mason_lspconfig.setup({
   ensure_installed = {
     "clangd",        -- C/C++
-    "omnisharp",     -- C#
     "jdtls",         -- Java
     "pyright",       -- Python
     "ts_ls",         -- JS/TS (new config name)
@@ -60,7 +59,6 @@ end
 
 local servers = {
   "clangd",
-  "omnisharp",
   "jdtls",
   "pyright",
   "ts_ls",
