@@ -65,6 +65,9 @@ return require("packer").startup(function(use)
 
   use({'CopilotC-Nvim/CopilotChat.nvim', requires = { 'nvim-lua/plenary.nvim' } })
 
+  use({ "rmagatti/auto-session" })
+
+  use ({ 'ahmedkhalf/project.nvim' })
   if packer_bootstrap then
     require("packer").sync()
   end

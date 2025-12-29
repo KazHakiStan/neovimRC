@@ -38,3 +38,15 @@ vim.opt.updatetime = 50
 vim.opt.colorcolumn = "80"
 
 vim.opt.showtabline = 2
+
+vim.opt.sessionoptions = {
+    "buffers",
+    "curdir",
+    "tabpages",
+    "winsize",
+    "folds",
+    "help",
+    "globals",
+    "winpos",
+    "terminal",
+}

@@ -32,7 +32,7 @@ vim.keymap.set({"n", "v"}, "<leader>d", [["_d]])
 
 vim.keymap.set("i", "<C-c>", "<Esc>")
 
-vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
+vim.keymap.set("n", "<leader>ws", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
 
 vim.keymap.set("n", "<M-h>", "<cmd>vertical resize -2<cr>", { desc = "Resize: narrower" })
 vim.keymap.set("n", "<M-l>", "<cmd>vertical resize +2<cr>", { desc = "Resize: wider" })
@@ -54,3 +54,11 @@ vim.keymap.set("n", "<leader>tc", "<cmd>tabclose<cr>", { desc = "Tab: close" })
 vim.keymap.set("n", "<leader>to", "<cmd>tabonly<cr>", { desc = "Tab: close others" })
 vim.keymap.set("n", "<M-,>", "gT", { desc = "Tab: prev" })
 vim.keymap.set("n", "<M-.>", "gt", { desc = "Tab: next" })
+
+vim.keymap.set("n", "<leader>pp", function()
+  require("telescope").extensions.projects.projects({})
+end, { desc = "Projects: switch" })
+
+vim.keymap.set("n", "<leader>ss", "<cmd>AutoSession save<cr>", { desc = "Session: save" })
+vim.keymap.set("n", "<leader>sr", "<cmd>AutoSession restore<cr>", { desc = "Session: restore" })
+vim.keymap.set("n", "<leader>sd", "<cmd>AutoSession delete<cr>", { desc = "Session: delete" })
