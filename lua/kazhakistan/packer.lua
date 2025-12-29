@@ -68,6 +68,11 @@ return require("packer").startup(function(use)
   use({ "rmagatti/auto-session" })
 
   use ({ 'ahmedkhalf/project.nvim' })
+
+  use({ "tpope/vim-dadbod" })
+  use({ "kristijanhusak/vim-dadbod-ui" })
+  use({ "kristijanhusak/vim-dadbod-completion" })
+
   if packer_bootstrap then
     require("packer").sync()
   end

@@ -62,3 +62,7 @@ end, { desc = "Projects: switch" })
 vim.keymap.set("n", "<leader>ss", "<cmd>AutoSession save<cr>", { desc = "Session: save" })
 vim.keymap.set("n", "<leader>sr", "<cmd>AutoSession restore<cr>", { desc = "Session: restore" })
 vim.keymap.set("n", "<leader>sd", "<cmd>AutoSession delete<cr>", { desc = "Session: delete" })
+
+vim.keymap.set("n", "<leader>du", "<cmd>DBUIToggle<cr>", { desc = "DBUI toggle" })
+vim.keymap.set("n", "<leader>df", "<cmd>DBUIFindBuffer<cr>", { desc = "DBUI find buffer" })
+vim.keymap.set("n", "<leader>da", "<cmd>DBUIAddConnection<cr>", { desc = "DBUI add connection" })
