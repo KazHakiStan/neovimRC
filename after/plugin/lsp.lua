@@ -16,6 +16,7 @@ mason.setup({
 mason_lspconfig.setup({
   ensure_installed = {
     "clangd",        -- C/C++
+    "roslyn",        -- C#
     "jdtls",         -- Java
     "pyright",       -- Python
     "ts_ls",         -- JS/TS (new config name)
