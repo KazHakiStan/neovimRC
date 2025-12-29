@@ -4,7 +4,12 @@ if not (ok_mason and ok_mason_lsp) then
   return
 end
 
-mason.setup()
+mason.setup({
+    registries = {
+        "github:mason-org/mason-registry",
+        "github:Crashdummyy/mason-registry",
+    }
+})
 
 -- Install servers with Mason, but DON'T auto-enable yet.
 -- We'll configure first, then enable explicitly.

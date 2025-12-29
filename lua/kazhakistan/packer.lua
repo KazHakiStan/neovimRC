@@ -73,6 +73,10 @@ return require("packer").startup(function(use)
   use({ "kristijanhusak/vim-dadbod-ui" })
   use({ "kristijanhusak/vim-dadbod-completion" })
 
+  use('jlcrochet/vim-razor')
+
+  use({ "seblyng/roslyn.nvim" })
+
   if packer_bootstrap then
     require("packer").sync()
   end
