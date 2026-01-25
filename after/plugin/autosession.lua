@@ -4,15 +4,21 @@ if not ok then return end
 vim.g._as_restored_for_new_cwd = false
 
 local function open_only_netrw()
-  vim.cmd("tabonly")
-  vim.cmd("only")
-  vim.cmd("enew")
-  vim.cmd("Ex")
+    if vim.fn.argc() > 0 then
+        return
+    end
+    vim.cmd("tabonly")
+    vim.cmd("only")
+    vim.cmd("enew")
+    vim.cmd("Ex")
 end
 
 autosession.setup({
   allowed_dirs = {
-      "C:/projects/*/*", "C:/projects/*",
+      "C:/projects/*",
+      "C:/projects/*/*",
+      "C:/projects/*/*/*",
+      "C:/projects/*/*/*/*",
   },
 
   suppressed_dirs = {
