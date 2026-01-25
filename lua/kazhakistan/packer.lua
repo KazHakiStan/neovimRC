@@ -61,9 +61,9 @@ return require("packer").startup(function(use)
 
   use('windwp/nvim-autopairs')
 
-  use('github/copilot.vim')
-
-  use({'CopilotC-Nvim/CopilotChat.nvim', requires = { 'nvim-lua/plenary.nvim' } })
+  -- use('github/copilot.vim')
+  --
+  -- use({'CopilotC-Nvim/CopilotChat.nvim', requires = { 'nvim-lua/plenary.nvim' } })
 
   use({ "rmagatti/auto-session" })
 
