@@ -30,7 +30,9 @@ return require("packer").startup(function(use)
 
   -- Colorscheme
   use({ "rose-pine/neovim", as = "rose-pine" })
-
+  use('nyoom-engineering/oxocarbon.nvim')
+  use('kdheepak/monochrome.nvim')
+  use({'ficd0/ashen.nvim'})
   use({ "sainnhe/gruvbox-material", as = "gruvbox" })
 
   -- Treesitter
@@ -38,6 +40,9 @@ return require("packer").startup(function(use)
     "nvim-treesitter/nvim-treesitter",
     run = ":TSUpdate",
   })
+
+  -- Cheatsheet
+  use('kazhakistan/cheatsheet.nvim')
 
   use('theprimeagen/harpoon')
 
@@ -76,6 +81,8 @@ return require("packer").startup(function(use)
   use('jlcrochet/vim-razor')
 
   use({ "seblyng/roslyn.nvim" })
+
+  
 
   if packer_bootstrap then
     require("packer").sync()
