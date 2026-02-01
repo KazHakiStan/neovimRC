@@ -66,3 +66,6 @@ vim.keymap.set("n", "<leader>sd", "<cmd>AutoSession delete<cr>", { desc = "Sessi
 vim.keymap.set("n", "<leader>du", "<cmd>DBUIToggle<cr>", { desc = "DBUI toggle" })
 vim.keymap.set("n", "<leader>df", "<cmd>DBUIFindBuffer<cr>", { desc = "DBUI find buffer" })
 vim.keymap.set("n", "<leader>da", "<cmd>DBUIAddConnection<cr>", { desc = "DBUI add connection" })
+
+vim.keymap.set("n", "<leader>co", "<cmd>CheatOpen<cr>", { desc = "Open CheatSheet floating" })
+vim.keymap.set("n", "<leader>w", "<cmd>w<cr>", { desc = "Save file" })
