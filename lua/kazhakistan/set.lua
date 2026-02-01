@@ -3,6 +3,8 @@ vim.opt.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Comman
 vim.opt.shellquote = ""
 vim.opt.shellxquote = ""
 
+vim.opt.shada = "!,'100,<50,s10,h"
+
 vim.opt.guicursor = {
   "n-v-c:block",
   "i-ci-ve:block",
