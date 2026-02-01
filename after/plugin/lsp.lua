@@ -16,7 +16,6 @@ mason.setup({
 mason_lspconfig.setup({
   ensure_installed = {
     "clangd",        -- C/C++
-    "jdtls",         -- Java
     "pyright",       -- Python
     "ts_ls",         -- JS/TS (new config name)
     "lua_ls",        -- Lua
@@ -24,6 +23,7 @@ mason_lspconfig.setup({
     "html",          -- HTML
     "cssls",         -- CSS
     "rust_analyzer", -- Rust
+    "powershell_es",
   },
   automatic_enable = false,
 })
@@ -67,6 +67,7 @@ local servers = {
   "html",
   "cssls",
   "rust_analyzer",
+  "powershell_es",
 }
 
 -- Extend each server config with your local defaults.
@@ -81,9 +82,26 @@ end
 vim.lsp.config("lua_ls", {
   settings = {
     Lua = {
-      diagnostics = { globals = { "vim" } },
+        runtime = { version = "LuaJIT" },
+        diagnostics = { globals = { "vim" } },
+        workspace = {
+            checkThirdParty = false,
+            library = {
+                vim.env.VIMRUNTIME,
+                -- vim.fn.stdpath("config") .. "/lua"
+            },
+        },
+        completion = {
+            callSnippet = "Replace",
+        },
+        telemetry = { enable = false },
     },
   },
+})
+
+vim.lsp.config("powershell_es", {
+    bundle_path = vim.fn.stdpath("data") .. "/mason/packages/*powershell*",
+    shell = "pwsh",
 })
 
 vim.lsp.config("clangd", {
