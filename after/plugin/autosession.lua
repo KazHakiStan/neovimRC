@@ -15,6 +15,10 @@ end
 
 autosession.setup({
   allowed_dirs = {
+      "D:/projects/*",
+      "D:/projects/*/*",
+      "D:/projects/*/*/*",
+      "D:/projects/*/*/*/*",
       "C:/projects/*",
       "C:/projects/*/*",
       "C:/projects/*/*/*",
@@ -22,8 +26,9 @@ autosession.setup({
   },
 
   suppressed_dirs = {
-    "C:/projects/_templates",
-    "C:/Users/User/AppData/Local/nvim"
+      "C:/",
+      "C:/projects/_templates",
+      "C:/Users/User/AppData/Local/nvim"
   },
 
   auto_save = true,
