@@ -23,12 +23,12 @@ autosession.setup({
       "C:/projects/*/*",
       "C:/projects/*/*/*",
       "C:/projects/*/*/*/*",
+      "C:/Users/User/AppData/Local/nvim"
   },
 
   suppressed_dirs = {
       "C:/",
       "C:/projects/_templates",
-      "C:/Users/User/AppData/Local/nvim"
   },
 
   auto_save = true,
