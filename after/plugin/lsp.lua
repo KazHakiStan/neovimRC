@@ -37,7 +37,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
       vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
     end
 
+    nmap("sd", function() vim.cmd("vsplit") vim.lsp.buf.definition() end, "Split the definition")
     nmap("gd", vim.lsp.buf.definition, "Go to definition")
+    nmap("sD", function() vim.cmd("vsplit") vim.lsp.buf.declaration() end, "Split the declaration")
     nmap("gD", vim.lsp.buf.declaration, "Go to declaration")
     nmap("gr", vim.lsp.buf.references, "References")
     nmap("gi", vim.lsp.buf.implementation, "Go to implementation")
