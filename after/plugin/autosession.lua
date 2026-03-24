@@ -15,20 +15,11 @@ end
 
 autosession.setup({
   allowed_dirs = {
-      "D:/projects/*",
-      "D:/projects/*/*",
-      "D:/projects/*/*/*",
-      "D:/projects/*/*/*/*",
-      "C:/projects/*",
-      "C:/projects/*/*",
-      "C:/projects/*/*/*",
-      "C:/projects/*/*/*/*",
-      "C:/Users/User/AppData/Local/nvim"
+      vim.fn.expand("/users/danila/projects/"),
+      vim.fn.expand("/users/danila/.config"),
   },
 
   suppressed_dirs = {
-      "C:/",
-      "C:/projects/_templates",
   },
 
   auto_save = true,
@@ -40,4 +31,3 @@ autosession.setup({
     open_only_netrw,
   },
 })
-

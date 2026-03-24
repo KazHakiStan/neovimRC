@@ -1,5 +1,5 @@
-vim.opt.shell = "pwsh"
-vim.opt.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command"
+vim.opt.shell = "zsh"
+vim.opt.shellcmdflag = "-l"
 vim.opt.shellquote = ""
 vim.opt.shellxquote = ""
 
