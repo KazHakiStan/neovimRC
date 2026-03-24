@@ -44,6 +44,7 @@ return require("packer").startup(function(use)
   -- Cheatsheet
   use('kazhakistan/cheatsheet.nvim')
 
+  use('theprimeagen/vim-be-good')
   use('theprimeagen/harpoon')
 
   use('mbbill/undotree')
