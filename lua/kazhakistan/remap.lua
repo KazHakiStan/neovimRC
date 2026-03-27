@@ -69,3 +69,18 @@ vim.keymap.set("n", "<leader>da", "<cmd>DBUIAddConnection<cr>", { desc = "DBUI a
 
 vim.keymap.set("n", "<leader>co", "<cmd>CheatOpen<cr>", { desc = "Open CheatSheet floating" })
 vim.keymap.set("n", "<leader>w", "<cmd>w<cr>", { desc = "Save file" })
+
+vim.keymap.set("n", "<leader>qo", "<cmd>copen<cr>", { desc = "Open QuickFix list" })
+vim.keymap.set("n", "<leader>qc", "<cmd>cclose<cr>", { desc = "Close QuickFix list" })
+vim.keymap.set("n", "<leader>qq", function()
+  for _, win in ipairs(vim.fn.getwininfo()) do
+    if win.quickfix == 1 then
+      vim.cmd("cclose")
+      return
+    end
+  end
+  vim.cmd("copen")
+end)
+
+vim.keymap.set("n", "<A-j>", ":cnext<CR>")
+vim.keymap.set("n", "<A-k>", ":cprev<CR>")
