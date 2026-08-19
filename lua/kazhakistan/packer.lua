@@ -83,7 +83,13 @@ return require("packer").startup(function(use)
 
   use({ "seblyng/roslyn.nvim" })
 
-  
+  use({
+      "MeanderingProgrammer/render-markdown.nvim",
+      requires = {
+          "nvim-treesitter/nvim-treesitter",
+          "nvim-tree/nvim-web-devicons"
+      }
+  })
 
   if packer_bootstrap then
     require("packer").sync()
