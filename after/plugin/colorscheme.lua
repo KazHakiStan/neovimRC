@@ -1,6 +1,7 @@
 -- Shared themes (synced with wezterm): ashen, aegis-lavender, aegis-gold, metaphor-light
 --   :Theme            cycle
 --   :Theme <name>     set
+--   :Theme list       show all (current marked with *)
 -- Ad-hoc (not synced): C("rose-pine"), S("light")
 -- other schemes: gruvbox-material, rose-pine, oxocarbon, monochrome
 local theme = require("kazhakistan.theme")

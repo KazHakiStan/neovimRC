@@ -209,6 +209,15 @@ function M.cycle()
     M.set(M.order[idx % #M.order + 1])
 end
 
+-- print every available theme, current one marked with *
+function M.list()
+    local lines = {}
+    for _, n in ipairs(M.order) do
+        table.insert(lines, (n == M.current and "* " or "  ") .. n)
+    end
+    vim.api.nvim_echo({ { table.concat(lines, "\n") } }, false, {})
+end
+
 function M.sync()
     local name = read_state() or M.default
     if name ~= M.current then
@@ -248,15 +257,17 @@ function M.setup()
     vim.api.nvim_create_user_command("Theme", function(opts)
         if opts.args == "" then
             M.cycle()
+        elseif opts.args == "list" then
+            M.list()
         else
             M.set(opts.args)
         end
     end, {
         nargs = "?",
         complete = function()
-            return M.order
+            return vim.list_extend({ "list" }, M.order)
         end,
-        desc = "Set shared nvim/wezterm theme (no arg = cycle)",
+        desc = "Set shared nvim/wezterm theme (no arg = cycle, list = show all)",
     })
 end
 
