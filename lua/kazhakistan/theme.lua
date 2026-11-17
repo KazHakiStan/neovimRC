@@ -88,6 +88,11 @@ local function metaphor_light_semantics()
     fg({ "Changed", "diffChanged", "GitSignsChange" }, mp.royal)
     fg({ "DiagnosticInfo", "DiagnosticSignInfo", "DiagnosticVirtualTextInfo", "DiagnosticFloatingInfo" }, mp.royal)
     fg({ "DiagnosticHint", "DiagnosticSignHint", "DiagnosticVirtualTextHint", "DiagnosticFloatingHint" }, mp.jade)
+    -- gruvbox-material draws these with bg5 (#ddccab): fine on flat parchment,
+    -- invisible over the print (contrast ~1.1)
+    fg({ "LineNr", "LineNrAbove", "LineNrBelow", "FoldColumn" }, mp.sepia)
+    fg({ "WinSeparator", "VertSplit" }, mp.gold)
+    vim.api.nvim_set_hl(0, "CursorLineNr", { fg = mp.gold, bold = true })
     local ansi = { "#fbf1c7", mp.crimson, mp.laurel, mp.gold, mp.royal, mp.plum, mp.jade, mp.sepia_dark,
         mp.sepia, mp.crimson, mp.laurel, mp.gold, mp.royal, mp.plum, mp.jade, mp.ink_deep }
     for i, c in ipairs(ansi) do
