@@ -6,7 +6,7 @@
 local M = {}
 
 M.state_file = vim.fn.expand("~/.config/theme.json")
-M.order = { "ashen", "aegis-lavender", "light" }
+M.order = { "ashen", "aegis-lavender", "aegis-gold", "light" }
 M.default = "ashen"
 M.current = nil
 
@@ -27,6 +27,25 @@ local lavender = {
     red_ashen         = "#543C6C",
     blue              = "#2FB8C0",
     blue_dark         = "#0C6C6C",
+}
+
+-- Metaphor-like gold (assets/aegis-gold.png in wezterm): amber gold, parchment,
+-- one cool jade for contrast; errors stay a warm red-orange so they read as errors
+local gold = {
+    red_flame         = "#FF6B4A", -- errors
+    red_glowing       = "#F0D58A", -- strings: light gold
+    red_ember         = "#D4A13F", -- main accent / ANSI red
+    orange_glow       = "#F2E6C4", -- CurSearch / ANSI green: parchment
+    orange_blaze      = "#C98A3A", -- constants: bronze
+    orange_smolder    = "#E0A040", -- ANSI yellow: amber
+    orange_golden     = "#F0B030", -- warnings
+    red_kindling      = "#D9B25A",
+    red_burnt_crimson = "#B08A40",
+    red_brick         = "#8A6A30",
+    red_deep_ember    = "#7A5A24",
+    red_ashen         = "#5A4520",
+    blue              = "#5F9E8F", -- jade
+    blue_dark         = "#3A6E60",
 }
 
 local function hl(name, spec)
@@ -64,6 +83,13 @@ M.themes = {
         hl("StatusLineNC", { bg = "#121212", fg = lavender.red_ashen, bold = true })
         hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
         hl("CursorLineNr", { fg = lavender.orange_glow, bold = true })
+    end,
+    ["aegis-gold"] = function()
+        load_ashen(gold)
+        transparent()
+        hl("StatusLineNC", { bg = "#121212", fg = gold.red_ashen, bold = true })
+        hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
+        hl("CursorLineNr", { fg = gold.red_glowing, bold = true })
     end,
     ["light"] = function()
         vim.o.background = "light"
