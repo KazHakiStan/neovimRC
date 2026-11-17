@@ -1,39 +1,30 @@
--- themes: ashen, gruvbox-material, rose-pine, oxocarbon, monochrome
+-- Shared themes (synced with wezterm): ashen, aegis-lavender, light
+--   :Theme            cycle
+--   :Theme <name>     set
+-- Ad-hoc (not synced): C("rose-pine"), S("light")
+-- other schemes: gruvbox-material, rose-pine, oxocarbon, monochrome
+local theme = require("kazhakistan.theme")
+
 function ColorMyPencils(color)
-	color = color or 'ashen'
-	vim.cmd.colorscheme(color)
-
-	vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-	vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
-
-    if color == 'ashen' then
-        vim.api.nvim_set_hl(0, "StatusLineNC", { bg = "#121212", fg = "#6f2929", bold = true })
-        vim.api.nvim_set_hl(0, "LineNr", { fg = "#aaaaaa", bg = "#121212" })
+    color = color or theme.default
+    if theme.themes[color] then
+        theme.apply(color)
+        return
     end
+    vim.cmd.colorscheme(color)
+    vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+    vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
 end
 
-function SwitchTheme(theme)
-    theme = theme or "dark"
-
-    vim.o.background = theme
-	vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-	vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+function SwitchTheme(mode)
+    vim.o.background = mode or "dark"
+    vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+    vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
 end
 
-function C(color)
-    ColorMyPencils(color)
-end
+function C(color) ColorMyPencils(color) end
+function S(mode) SwitchTheme(mode) end
+function Sl() SwitchTheme("light") end
+function Sd() SwitchTheme("dark") end
 
-function S(theme)
-    SwitchTheme(theme)
-end
-
-function Sl()
-    SwitchTheme("light")
-end
-
-function Sd()
-    SwitchTheme("dark")
-end
-
-ColorMyPencils()
+theme.setup()
