@@ -1,7 +1,4 @@
-vim.opt.shell = "pwsh"
-vim.opt.shellcmdflag = "-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command"
-vim.opt.shellquote = ""
-vim.opt.shellxquote = ""
+require("kazhakistan.platform").setup_shell()
 
 vim.opt.shada = "!,'100,<50,s10,h"
 

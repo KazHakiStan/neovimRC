@@ -84,3 +84,5 @@ end)
 
 vim.keymap.set("n", "<A-j>", ":cnext<CR>")
 vim.keymap.set("n", "<A-k>", ":cprev<CR>")
+vim.keymap.set("i", "<Tab>", "<Tab>", { noremap = true })
+vim.keymap.set("i", "<S-Tab>", "<C-d>", { noremap = true })

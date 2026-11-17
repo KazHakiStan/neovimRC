@@ -83,7 +83,10 @@ return require("packer").startup(function(use)
 
   use({ "seblyng/roslyn.nvim" })
 
-  
+  use({
+    "delphinus/md-render.nvim",
+    requires = { "nvim-tree/nvim-web-devicons" },
+  })
 
   if packer_bootstrap then
     require("packer").sync()

@@ -102,16 +102,11 @@ vim.lsp.config("lua_ls", {
 })
 
 vim.lsp.config("powershell_es", {
-    bundle_path = vim.fn.stdpath("data") .. "/mason/packages/*powershell*",
+    bundle_path = vim.fn.stdpath("data") .. "/mason/packages/powershell-editor-services",
     shell = "pwsh",
 })
 
-vim.lsp.config("clangd", {
-    cmd = {
-        "clangd",
-        "--query-driver=C:/msys64/ucrt64/bin/g++.exe,C:/msys64/ucrt64/bin/gcc.exe",
-    }
-})
+vim.lsp.config("clangd", { cmd = require("kazhakistan.platform").clangd_cmd() })
 
 -- Finally enable all configs
 vim.lsp.enable(servers)
@@ -125,3 +120,18 @@ vim.diagnostic.config({
     float = { border = "rounded", source = "if_many" },
 })
 
+vim.api.nvim_create_user_command("LspRestart", function()
+    local clients = vim.lsp.get_clients({ bufnr = 0 })
+
+    for _, client in ipairs(clients) do
+        client:stop()
+    end
+
+    vim.defer_fn(function()
+        vim.cmd("edit")
+    end, 500)
+end, {})
+
+vim.api.nvim_create_user_command("LspInfo", function()
+    vim.cmd("checkhealth vim.lsp")
+end, {})
