@@ -6,7 +6,7 @@
 local M = {}
 
 M.state_file = vim.fn.expand("~/.config/theme.json")
-M.order = { "ashen", "aegis-lavender", "aegis-gold", "light" }
+M.order = { "ashen", "aegis-lavender", "aegis-gold", "metaphor-light" }
 M.default = "ashen"
 M.current = nil
 
@@ -48,12 +48,61 @@ local gold = {
     blue_dark         = "#3A6E60",
 }
 
+-- metaphor-light: gruvbox-material recoloured for the parchment print in wezterm.
+-- Full Metaphor palette (also the terminal ANSI colours in wezterm):
+local mp = {
+    ink = "#3b2a1a", ink_deep = "#2c1f12", crimson = "#a30d1f", sienna = "#96461a",
+    gold = "#7a5806", laurel = "#4f5e1e", jade = "#24605a", royal = "#2b5585",
+    plum = "#7a3c6c", sepia = "#74624a", sepia_dark = "#62523c", gold_leaf = "#f0d38c",
+}
+-- Code uses only ink + crimson + gold ("mono"): with treesitter, gruvbox-material
+-- paints keyword red, function green bold, string aqua, field blue, type yellow
+-- italic, number/boolean purple, operator orange, comment grey1 italic.
+local metaphor_light = {
+    fg0    = { mp.ink, "237" },
+    fg1    = { mp.ink_deep, "237" },
+    red    = { mp.crimson, "88" },      -- keywords
+    purple = { mp.crimson, "88" },      -- numbers, booleans, builtins
+    aqua   = { mp.gold, "136" },        -- strings
+    yellow = { mp.gold, "136" },        -- types (italic)
+    green  = { mp.ink_deep, "237" },    -- functions (bold: shape, not colour)
+    blue   = { mp.ink, "237" },         -- fields, properties
+    orange = { mp.sepia_dark, "243" },  -- operators, quiet
+    grey0  = { "#8a7758", "246" },
+    grey1  = { mp.sepia, "245" },       -- comments (italic)
+    grey2  = { mp.sepia_dark, "243" },
+    bg3    = { mp.gold_leaf, "223" },   -- Visual
+}
+
+-- the mono override also hits UI groups that share those palette slots; give
+-- git, diagnostics and :terminal their meaningful colours back
+local function metaphor_light_semantics()
+    local function fg(names, color)
+        for _, n in ipairs(names) do
+            local h = vim.api.nvim_get_hl(0, { name = n, link = false })
+            h.fg = color
+            vim.api.nvim_set_hl(0, n, h)
+        end
+    end
+    fg({ "Added", "diffAdded", "GitSignsAdd", "DiagnosticOk", "DiagnosticSignOk" }, mp.laurel)
+    fg({ "Changed", "diffChanged", "GitSignsChange" }, mp.royal)
+    fg({ "DiagnosticInfo", "DiagnosticSignInfo", "DiagnosticVirtualTextInfo", "DiagnosticFloatingInfo" }, mp.royal)
+    fg({ "DiagnosticHint", "DiagnosticSignHint", "DiagnosticVirtualTextHint", "DiagnosticFloatingHint" }, mp.jade)
+    local ansi = { "#fbf1c7", mp.crimson, mp.laurel, mp.gold, mp.royal, mp.plum, mp.jade, mp.sepia_dark,
+        mp.sepia, mp.crimson, mp.laurel, mp.gold, mp.royal, mp.plum, mp.jade, mp.ink_deep }
+    for i, c in ipairs(ansi) do
+        vim.g["terminal_color_" .. (i - 1)] = c
+    end
+end
+
 local function hl(name, spec)
     vim.api.nvim_set_hl(0, name, spec)
 end
 
+-- let the wezterm background show through, inactive windows (NormalNC) included
 local function transparent()
     hl("Normal", { bg = "none" })
+    hl("NormalNC", { bg = "none" })
     hl("NormalFloat", { bg = "none" })
 end
 
@@ -91,12 +140,23 @@ M.themes = {
         hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
         hl("CursorLineNr", { fg = gold.red_glowing, bold = true })
     end,
-    ["light"] = function()
+    ["metaphor-light"] = function()
         vim.o.background = "light"
+        vim.g.gruvbox_material_colors_override = metaphor_light
+        vim.g.gruvbox_material_enable_bold = 1 -- bold functions: in mono they stand out by shape
+        vim.g.gruvbox_material_transparent_background = 1 -- no fill on inactive windows, folds, signs
         vim.cmd.colorscheme("gruvbox-material")
+        -- don't leak into a manual :C("gruvbox-material")
+        vim.g.gruvbox_material_colors_override = nil
+        vim.g.gruvbox_material_enable_bold = nil
+        vim.g.gruvbox_material_transparent_background = nil
         transparent()
+        metaphor_light_semantics()
     end,
 }
+
+-- old names still found in ~/.config/theme.json
+local legacy = { light = "metaphor-light" }
 
 local function read_state()
     local ok, lines = pcall(vim.fn.readfile, M.state_file)
@@ -104,8 +164,11 @@ local function read_state()
         return nil
     end
     local ok2, data = pcall(vim.json.decode, table.concat(lines, "\n"))
-    if ok2 and type(data) == "table" and M.themes[data.theme] then
-        return data.theme
+    if ok2 and type(data) == "table" then
+        local name = legacy[data.theme] or data.theme
+        if M.themes[name] then
+            return name
+        end
     end
     return nil
 end

@@ -1,4 +1,4 @@
--- Shared themes (synced with wezterm): ashen, aegis-lavender, light
+-- Shared themes (synced with wezterm): ashen, aegis-lavender, aegis-gold, metaphor-light
 --   :Theme            cycle
 --   :Theme <name>     set
 -- Ad-hoc (not synced): C("rose-pine"), S("light")
