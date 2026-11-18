@@ -64,6 +64,43 @@ local function on_output(_, body)
     require("dap.repl").append(text, "$", { newline = false })
 end
 
+-- Focus like Xcode: the app comes to the front when it starts or continues,
+-- the terminal comes back when it stops (breakpoint, assert, crash, pause).
+-- Steps don't move focus.
+local app_pid
+
+local function front_pid()
+    local r = vim.system({ "sh", "-c", 'lsappinfo info -only pid "$(lsappinfo front)"' }, { text = true }):wait()
+    return tonumber((r.stdout or ""):match("=(%d+)"))
+end
+
+-- an app started by the debugger stays in the background; activating it by pid
+-- through AppKit needs no Accessibility permission. Retried while it is still
+-- starting up and has no window to show yet.
+local function focus_app(tries)
+    local pid = app_pid
+    if not pid then return end
+    tries = tries or 6
+    local js = ("ObjC.import('AppKit'); $.NSRunningApplication.runningApplicationWithProcessIdentifier(%d)"
+        .. ".activateWithOptions($.NSApplicationActivateAllWindows)"):format(pid)
+    vim.system({ "osascript", "-l", "JavaScript", "-e", js }, {}, function()
+        vim.schedule(function()
+            if tries > 1 and app_pid == pid and front_pid() ~= pid then
+                vim.defer_fn(function() focus_app(tries - 1) end, 500)
+            end
+        end)
+    end)
+end
+
+-- back to the terminal nvim runs in: its pane in WezTerm, then the app itself
+local function focus_terminal()
+    if vim.env.WEZTERM_PANE and vim.fn.executable("wezterm") == 1 then
+        vim.system({ "wezterm", "cli", "activate-pane", "--pane-id", vim.env.WEZTERM_PANE })
+    end
+    local bundle = vim.env.__CFBundleIdentifier
+    if bundle and bundle ~= "" then vim.system({ "open", "-b", bundle }) end
+end
+
 function M.setup()
     if ready then return true end
     local ok_dap, dap = pcall(require, "dap")
@@ -121,7 +158,15 @@ function M.setup()
         vim.schedule(decorate)
     end
     dap.listeners.after.event_exited.xcode = function(_, body)
+        app_pid = nil
         notify("app exited with code " .. tostring(body and body.exitCode))
+    end
+    dap.listeners.after.event_process.xcode = function(_, body)
+        app_pid = body and body.systemProcessId
+        focus_app()
+    end
+    dap.listeners.after.event_stopped.xcode = function(_, body)
+        if body and body.reason ~= "step" then focus_terminal() end
     end
     vim.api.nvim_create_autocmd({ "FileType", "BufWinEnter" }, {
         group = vim.api.nvim_create_augroup("XcodeDapHint", { clear = true }),
@@ -155,6 +200,7 @@ end
 function M.continue()
     if session() then
         require("dap").continue()
+        focus_app()
     else
         require("kazhakistan.xcode").debug()
     end
@@ -174,7 +220,10 @@ end
 M.step_over = in_session(function() require("dap").step_over() end)
 M.step_into = in_session(function() require("dap").step_into() end)
 M.step_out = in_session(function() require("dap").step_out() end)
-M.run_to_cursor = in_session(function() require("dap").run_to_cursor() end)
+M.run_to_cursor = in_session(function()
+    require("dap").run_to_cursor()
+    focus_app()
+end)
 M.eval = in_session(function() require("dapui").eval(nil, { enter = true }) end)
 
 function M.toggle_breakpoint()
