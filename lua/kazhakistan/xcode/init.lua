@@ -396,6 +396,15 @@ local function build_wins()
     return wins
 end
 
+local function restore_panels()
+    if not package.loaded.dapui then return end
+    for _, w in ipairs(vim.api.nvim_list_wins()) do
+        if vim.bo[vim.api.nvim_win_get_buf(w)].filetype:find("^dapui_") then
+            return require("dapui").open({ reset = true })
+        end
+    end
+end
+
 local function show_build()
     require("kazhakistan.xcode.tab").enter()
     local b = build_buf()
@@ -412,6 +421,13 @@ local function show_build()
         winbar = " xcodebuild   q close · L full log · <leader>xk stop · <leader>qo errors" }) do
         vim.wo[w][opt] = val
     end
+    -- the split squeezes the debugger panels; give them their sizes back
+    -- once it closes (q, or a debug launch hiding it)
+    vim.api.nvim_create_autocmd("WinClosed", {
+        pattern = tostring(w),
+        once = true,
+        callback = function() vim.schedule(restore_panels) end,
+    })
     vim.api.nvim_set_current_win(cur)
     return w
 end
