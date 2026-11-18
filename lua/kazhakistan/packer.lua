@@ -88,6 +88,12 @@ return require("packer").startup(function(use)
     requires = { "nvim-tree/nvim-web-devicons" },
   })
 
+  -- Debugger UI (lldb-dap for Xcode projects: lua/kazhakistan/xcode)
+  use({
+    "rcarriga/nvim-dap-ui",
+    requires = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" },
+  })
+
   if packer_bootstrap then
     require("packer").sync()
   end
