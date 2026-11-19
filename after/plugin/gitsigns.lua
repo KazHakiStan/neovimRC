@@ -5,6 +5,7 @@ if not ok then return end
 
 gitsigns.setup({
     preview_config = { border = "rounded" },
+    current_line_blame = require("kazhakistan.kazrc").get().git.line_blame,
     current_line_blame_opts = { delay = 300 },
     on_attach = function(buf)
         local function map(mode, lhs, rhs, desc)

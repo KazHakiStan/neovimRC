@@ -1,17 +1,18 @@
 -- Completion (blink.cmp): LSP, snippets, paths and words from open buffers.
 
--- What Tab does while the completion list is open:
+-- What Tab does while the completion list is open (completion.tab in the
+-- settings, ~/.config/kazrc/nvim.lua):
 --   "select"  Tab / S-Tab move through the list, <CR> accepts
 --   "accept"  Tab accepts the highlighted item
 -- Switch for this session: :CompletionTab [select|accept]
-local TAB = "select"
+local settings = require("kazhakistan.kazrc").get().completion
 
 -- With the list closed Tab always indents: it never jumps between snippet
 -- fields (that's <C-l> / <C-h>), which used to throw the cursor elsewhere.
 local ok, blink = pcall(require, "blink.cmp")
 if not ok then return end
 
-vim.g.completion_tab = vim.g.completion_tab or TAB
+vim.g.completion_tab = vim.g.completion_tab or settings.tab
 
 local function on_tab(cmp)
     if not cmp.is_menu_visible() then return end
@@ -43,7 +44,7 @@ blink.setup({
         ["<C-h>"] = { "snippet_backward", "fallback" },
     },
     completion = {
-        documentation = { auto_show = true, auto_show_delay_ms = 300, window = { border = "rounded" } },
+        documentation = { auto_show = true, auto_show_delay_ms = settings.documentation_delay_ms, window = { border = "rounded" } },
         menu = { border = "rounded" },
     },
     signature = { enabled = true, window = { border = "rounded" } },

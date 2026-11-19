@@ -7,8 +7,9 @@ local M = {}
 
 M.state_file = vim.fn.expand("~/.config/kazrc/theme.json")
 local legacy_file = vim.fn.expand("~/.config/theme.json") -- before kazrc
-M.order = { "ashen", "aegis-lavender", "aegis-gold", "metaphor-light" }
-M.default = "ashen"
+-- theme.order / theme.default in the settings (~/.config/kazrc/nvim.lua)
+M.order = require("kazhakistan.kazrc").get().theme.order
+M.default = require("kazhakistan.kazrc").get().theme.default
 M.current = nil
 
 -- ashen palette keys remapped to the aegis-lavender picture

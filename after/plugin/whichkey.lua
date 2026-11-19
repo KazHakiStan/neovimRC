@@ -5,7 +5,7 @@ if not ok then return end
 
 wk.setup({
     preset = "helix",
-    delay = 400,
+    delay = require("kazhakistan.kazrc").get().key_hints_delay_ms,
     win = { border = "rounded" },
     icons = { mappings = false },
 })

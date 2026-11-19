@@ -15,7 +15,7 @@ if not vim.uv.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("lazy").setup({
+local spec = {
     -- Telescope
     { "nvim-telescope/telescope.nvim", branch = "master", dependencies = { "nvim-lua/plenary.nvim" } },
 
@@ -69,7 +69,13 @@ require("lazy").setup({
     { "rcarriga/nvim-dap-ui", dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" } },
     -- variable values next to the code while stopped in the debugger
     { "theHamsta/nvim-dap-virtual-text", dependencies = { "mfussenegger/nvim-dap" } },
-}, {
+}
+
+-- your own specs (plugins in ~/.config/kazrc/nvim.lua): extra plugins, or
+-- { "<built-in>", enabled = false } to drop one
+vim.list_extend(spec, require("kazhakistan.kazrc").get().plugins)
+
+require("lazy").setup(spec, {
     -- everything loads at startup, like packer did
     defaults = { lazy = false },
     install = { missing = true },

@@ -4,11 +4,8 @@
 -- (cindent for C/C++), treesitter indent is still experimental.
 local M = {}
 
-M.parsers = {
-    "bash", "c", "cpp", "objc", "c_sharp", "css", "html", "javascript", "json",
-    "lua", "markdown", "markdown_inline", "python", "query", "rust", "typescript",
-    "vim", "vimdoc",
-}
+-- treesitter.parsers in the settings (~/.config/kazrc/nvim.lua)
+M.parsers = require("kazhakistan.kazrc").get().treesitter.parsers
 
 local function ts()
     local ok, mod = pcall(require, "nvim-treesitter")

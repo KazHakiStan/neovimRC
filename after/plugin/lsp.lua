@@ -1,3 +1,5 @@
+local lsp_settings = require("kazhakistan.kazrc").get().lsp
+
 local ok_mason, mason = pcall(require, "mason")
 local ok_mason_lsp, mason_lspconfig = pcall(require, "mason-lspconfig")
 if not (ok_mason and ok_mason_lsp) then
@@ -14,17 +16,8 @@ mason.setup({
 -- Install servers with Mason, but DON'T auto-enable yet.
 -- We'll configure first, then enable explicitly.
 mason_lspconfig.setup({
-  ensure_installed = {
-    "clangd",        -- C/C++
-    "pyright",       -- Python
-    "ts_ls",         -- JS/TS (new config name)
-    "lua_ls",        -- Lua
-    "vimls",         -- Vimscript
-    "html",          -- HTML
-    "cssls",         -- CSS
-    "rust_analyzer", -- Rust
-    "powershell_es",
-  },
+  -- lsp.install in the settings (~/.config/kazrc/nvim.lua)
+  ensure_installed = lsp_settings.install,
   automatic_enable = false,
 })
 
@@ -59,18 +52,8 @@ if ok_blink then
   capabilities = blink.get_lsp_capabilities(capabilities)
 end
 
-local servers = {
-  "clangd",
-  "jdtls",
-  "pyright",
-  "ts_ls",
-  "lua_ls",
-  "vimls",
-  "html",
-  "cssls",
-  "rust_analyzer",
-  "powershell_es",
-}
+-- lsp.servers in the settings (~/.config/kazrc/nvim.lua)
+local servers = lsp_settings.servers
 
 -- Extend each server config with your local defaults.
 -- (These configs are provided by nvim-lspconfig under runtimepath, and Neovim merges them.)
@@ -107,6 +90,11 @@ vim.lsp.config("powershell_es", {
 })
 
 vim.lsp.config("clangd", { cmd = require("kazhakistan.platform").clangd_cmd() })
+
+-- yours last, so they win: lsp.config in ~/.config/kazrc/nvim.lua
+for name, cfg in pairs(lsp_settings.config) do
+  vim.lsp.config(name, cfg)
+end
 
 -- Finally enable all configs
 vim.lsp.enable(servers)

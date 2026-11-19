@@ -1,3 +1,5 @@
+-- settings: lua/kazhakistan/defaults.lua + ~/.config/kazrc/nvim.lua (:KazConfig)
+require("kazhakistan.kazrc").setup()
 require("kazhakistan.remap")
 require("kazhakistan.set")
 require("kazhakistan.lazy")

@@ -18,10 +18,17 @@ end
 
 function M.clangd_cmd()
     if M.is_windows then
-        -- Keep clangd and the compiler driver in the same MSYS2 environment.
+        -- Keep clangd and the compiler driver in the same MSYS2 environment:
+        -- the clangd on PATH (`path` in ~/.config/kazrc/nvim.lua) if its folder
+        -- has gcc too, else the default MSYS2 install.
+        local bins = {}
+        local on_path = vim.fn.exepath("clangd")
+        if on_path ~= "" then bins[1] = vim.fs.dirname(vim.fs.normalize(on_path)) .. "/" end
         for _, prefix in ipairs({ "C:/msys64/mingw64", "C:/msys64/ucrt64" }) do
-            local bin = prefix .. "/bin/"
-            if vim.fn.executable(bin .. "clangd.exe") == 1 then
+            bins[#bins + 1] = prefix .. "/bin/"
+        end
+        for _, bin in ipairs(bins) do
+            if vim.fn.executable(bin .. "clangd.exe") == 1 and vim.fn.executable(bin .. "g++.exe") == 1 then
                 return {
                     bin .. "clangd.exe",
                     "--query-driver=" .. bin .. "g++.exe," .. bin .. "gcc.exe",

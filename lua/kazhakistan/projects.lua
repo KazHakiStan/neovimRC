@@ -3,14 +3,21 @@
 --
 -- A root is the OUTERMOST git repo above the file, so third-party/ submodules
 -- (each with its own .git) belong to the game they live in. Outside git:
--- the nearest folder with a Makefile, *.sln, package.json or pyproject.toml.
+-- the nearest folder with one of projects.markers (Makefile, *.sln, ...).
 
 local M = {}
 
--- cd to a file's project when you open it (Telescope, grep, :e search from there)
-local AUTO_CD = true
+-- auto_cd and the markers: `projects` in the settings (~/.config/kazrc/nvim.lua)
+local function settings() return require("kazhakistan.kazrc").get().projects end
 local MAX = 100
-local MARKERS = { Makefile = true, ["package.json"] = true, ["pyproject.toml"] = true }
+
+-- "Makefile" matches by name, "*.sln" as a glob
+local function is_marker(name)
+    for _, m in ipairs(settings().markers) do
+        if m == name or (m:find("[*?]") and vim.glob.to_lpeg(m):match(name)) then return true end
+    end
+    return false
+end
 
 local history_file = vim.fn.stdpath("data") .. "/projects.json"
 local history -- { path, ... } most recent first
@@ -27,9 +34,7 @@ function M.root(path)
         if vim.uv.fs_stat(d .. "/.git") then git = d end
     end
     if git then return git end
-    return vim.fs.root(dir, function(name)
-        return MARKERS[name] or name:match("%.sln$") ~= nil
-    end)
+    return vim.fs.root(dir, is_marker)
 end
 
 local function save()
@@ -149,7 +154,7 @@ function M.setup()
             local root = M.root(name)
             if not root then return end
             M.remember(root)
-            if AUTO_CD then cd(root) end
+            if settings().auto_cd then cd(root) end
         end,
     })
     vim.api.nvim_create_user_command("Projects", M.pick, { desc = "Switch project" })

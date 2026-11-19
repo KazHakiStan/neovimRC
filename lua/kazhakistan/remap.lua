@@ -1,4 +1,4 @@
-vim.g.mapleader = " "
+vim.g.mapleader = require("kazhakistan.kazrc").get().leader
 vim.keymap.set("n", "<leader>pv", vim.cmd.Ex, { desc = "File explorer (netrw)" })
 
 vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]], { desc = "Terminal: normal mode" })
