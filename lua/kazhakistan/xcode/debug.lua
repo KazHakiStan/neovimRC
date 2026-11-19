@@ -101,6 +101,25 @@ local function focus_terminal()
     if bundle and bundle ~= "" then vim.system({ "open", "-b", bundle }) end
 end
 
+-- nvim-treesitter's C++ "locals" query makes the header of an out-of-class
+-- definition (`void cApp::onUpdate(float dt)`) a scope of its own, so to
+-- dap-virtual-text the parameters seem to live outside the body and never get
+-- a value. Same query with that one scope dropped.
+local function fix_cpp_locals()
+    local q = vim.treesitter.query
+    local parts = {}
+    for _, lang in ipairs({ "c", "cpp" }) do
+        for _, f in ipairs(q.get_files(lang, "locals")) do
+            local text = table.concat(vim.fn.readfile(f), "\n")
+            parts[#parts + 1] = (text:gsub("; *inherits:[^\n]*", ""))
+        end
+    end
+    local text, n = table.concat(parts, "\n"):gsub(
+        "(%(function_declarator%s+declarator: %(qualified_identifier%s+name: %(identifier%) @local%.definition%.function%)%)) @local%.scope",
+        "%1")
+    if n > 0 then pcall(q.set, "cpp", "locals", text) end
+end
+
 function M.setup()
     if ready then return true end
     local ok_dap, dap = pcall(require, "dap")
@@ -143,6 +162,13 @@ function M.setup()
         controls = { enabled = true, element = "repl" },
         floating = { border = "rounded" },
     })
+
+    -- values of variables as grey text at the end of their lines while stopped
+    local ok_vt, vt = pcall(require, "nvim-dap-virtual-text")
+    if ok_vt then
+        vt.setup({ virt_text_pos = "eol", highlight_changed_variables = true })
+        pcall(fix_cpp_locals)
+    end
 
     vim.fn.sign_define("DapBreakpoint", { text = "●", texthl = "DiagnosticError" })
     vim.fn.sign_define("DapBreakpointCondition", { text = "◆", texthl = "DiagnosticError" })
@@ -243,6 +269,10 @@ end
 function M.clear_breakpoints()
     require("dap").clear_breakpoints()
     notify("breakpoints cleared")
+end
+
+function M.toggle_values()
+    if pcall(require, "nvim-dap-virtual-text") then vim.cmd("DapVirtualTextToggle") end
 end
 
 function M.toggle_ui()

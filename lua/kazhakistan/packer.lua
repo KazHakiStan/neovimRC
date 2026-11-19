@@ -38,6 +38,7 @@ return require("packer").startup(function(use)
   -- Treesitter
   use({
     "nvim-treesitter/nvim-treesitter",
+    branch = "main", -- new API; parsers via lua/kazhakistan/treesitter.lua
     run = ":TSUpdate",
   })
 
@@ -56,14 +57,15 @@ return require("packer").startup(function(use)
   use('williamboman/mason.nvim')
 
   use('williamboman/mason-lspconfig.nvim')
-  use('hrsh7th/nvim-cmp')
-  use('hrsh7th/cmp-buffer')
-  use('hrsh7th/cmp-path')
-  use('hrsh7th/cmp-nvim-lsp')
-  use('hrsh7th/cmp-nvim-lua')
-  use('L3MON4D3/LuaSnip')
-  use('saadparwaiz1/cmp_luasnip')
-  use('rafamadriz/friendly-snippets')
+  -- completion: LSP, paths, words, snippets (friendly-snippets) in one plugin;
+  -- a release tag so it downloads its prebuilt matcher
+  use({ "saghen/blink.cmp", tag = "v1.*", requires = { "rafamadriz/friendly-snippets" } })
+
+  -- popup listing what the keys you started typing can continue into
+  use("folke/which-key.nvim")
+
+  -- changed lines in the sign column, hunk preview / stage / blame
+  use("lewis6991/gitsigns.nvim")
 
   use('windwp/nvim-autopairs')
 
@@ -93,6 +95,8 @@ return require("packer").startup(function(use)
     "rcarriga/nvim-dap-ui",
     requires = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" },
   })
+  -- variable values next to the code while stopped in the debugger
+  use({ "theHamsta/nvim-dap-virtual-text", requires = { "mfussenegger/nvim-dap" } })
 
   if packer_bootstrap then
     require("packer").sync()

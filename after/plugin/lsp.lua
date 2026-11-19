@@ -52,11 +52,11 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
--- Capabilities (optional: improves completion if you use nvim-cmp)
+-- Capabilities: what blink.cmp's completion supports
 local capabilities = vim.lsp.protocol.make_client_capabilities()
-local ok_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
-if ok_cmp then
-  capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
+local ok_blink, blink = pcall(require, "blink.cmp")
+if ok_blink then
+  capabilities = blink.get_lsp_capabilities(capabilities)
 end
 
 local servers = {

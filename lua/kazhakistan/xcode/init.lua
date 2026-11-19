@@ -651,6 +651,7 @@ local KEYS = {
     { "Debug", "<leader>xC", dap_call("run_to_cursor"), "Run to cursor" },
     { "Debug", "<leader>xe", dap_call("eval"), "Value under cursor / selection", modes = { "n", "v" } },
     { "Debug", "<leader>xd", dap_call("toggle_ui"), "Show / hide debugger panels" },
+    { "Debug", "<leader>xv", dap_call("toggle_values"), "Show / hide values next to the code" },
     { "Debug", "<leader>xt", function() require("kazhakistan.xcode.tab").enter() end, "Go to the Xcode tab" },
     { "Debug", "<leader>xh", function() M.help() end, "This help" },
 }

@@ -1,5 +1,5 @@
 vim.g.mapleader = " "
-vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
+vim.keymap.set("n", "<leader>pv", vim.cmd.Ex, { desc = "File explorer (netrw)" })
 
 vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]], { desc = "Terminal: normal mode" })
 
@@ -24,15 +24,15 @@ vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
-vim.keymap.set("x", "<leader>p", [["_dP]])
-vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
-vim.keymap.set("n", "<leader>Y", [["+Y]])
+vim.keymap.set("x", "<leader>p", [["_dP]], { desc = "Paste over, keep the register" })
+vim.keymap.set({"n", "v"}, "<leader>y", [["+y]], { desc = "Yank to clipboard" })
+vim.keymap.set("n", "<leader>Y", [["+Y]], { desc = "Yank line to clipboard" })
 
-vim.keymap.set({"n", "v"}, "<leader>d", [["_d]])
+vim.keymap.set({"n", "v"}, "<leader>d", [["_d]], { desc = "Delete without yanking" })
 
 vim.keymap.set("i", "<C-c>", "<Esc>")
 
-vim.keymap.set("n", "<leader>ws", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
+vim.keymap.set("n", "<leader>ws", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = "Substitute word under cursor" })
 
 vim.keymap.set("n", "<M-h>", "<cmd>vertical resize -2<cr>", { desc = "Resize: narrower" })
 vim.keymap.set("n", "<M-l>", "<cmd>vertical resize +2<cr>", { desc = "Resize: wider" })
@@ -80,9 +80,9 @@ vim.keymap.set("n", "<leader>qq", function()
     end
   end
   vim.cmd("copen")
-end)
+end, { desc = "Toggle QuickFix list" })
 
-vim.keymap.set("n", "<A-j>", ":cnext<CR>")
-vim.keymap.set("n", "<A-k>", ":cprev<CR>")
+vim.keymap.set("n", "<A-j>", ":cnext<CR>", { desc = "QuickFix: next" })
+vim.keymap.set("n", "<A-k>", ":cprev<CR>", { desc = "QuickFix: previous" })
 vim.keymap.set("i", "<Tab>", "<Tab>", { noremap = true })
 vim.keymap.set("i", "<S-Tab>", "<C-d>", { noremap = true })
