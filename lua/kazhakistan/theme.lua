@@ -1,11 +1,12 @@
 -- Shared theme switching between nvim and wezterm.
--- Source of truth: ~/.config/theme.json -> {"theme":"<name>"}
+-- Source of truth: ~/.config/kazrc/theme.json -> {"theme":"<name>"}
 -- wezterm watches the same file, so switching here re-themes the terminal
 -- and switching in wezterm (LEADER t) re-themes every running nvim.
 
 local M = {}
 
-M.state_file = vim.fn.expand("~/.config/theme.json")
+M.state_file = vim.fn.expand("~/.config/kazrc/theme.json")
+local legacy_file = vim.fn.expand("~/.config/theme.json") -- before kazrc
 M.order = { "ashen", "aegis-lavender", "aegis-gold", "metaphor-light" }
 M.default = "ashen"
 M.current = nil
@@ -160,7 +161,7 @@ M.themes = {
     end,
 }
 
--- old names still found in ~/.config/theme.json
+-- old names still found in theme.json
 local legacy = { light = "metaphor-light" }
 
 local function read_state()
@@ -249,7 +250,14 @@ end
 
 function M.setup()
     if vim.fn.filereadable(M.state_file) == 0 then
-        write_state(M.default)
+        -- moved into ~/.config/kazrc: carry the old choice over once
+        local old = vim.fn.filereadable(legacy_file) == 1 and vim.fn.readfile(legacy_file) or nil
+        if old and #old > 0 then
+            vim.fn.mkdir(vim.fn.fnamemodify(M.state_file, ":h"), "p")
+            vim.fn.writefile(old, M.state_file)
+        else
+            write_state(M.default)
+        end
     end
     M.sync()
     M.watch()
