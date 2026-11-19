@@ -27,8 +27,16 @@ function M.install()
     return mod.install(M.parsers)
 end
 
+-- Treesitter highlighting turns Vim's regex syntax off, but some of Vim's
+-- indent scripts read it: XML's indents nothing without it. These keep it on
+-- underneath (treesitter colours still win).
+local KEEP_SYNTAX = { xml = true, xsd = true, xslt = true, svg = true, xhtml = true }
+
 local function start(buf, lang)
-    if pcall(vim.treesitter.start, buf, lang) then return true end
+    if not pcall(vim.treesitter.start, buf, lang) then return end
+    local ft = vim.bo[buf].filetype
+    if KEEP_SYNTAX[ft] then vim.bo[buf].syntax = ft end
+    return true
 end
 
 function M.setup()

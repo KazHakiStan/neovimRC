@@ -47,6 +47,8 @@ require("lazy").setup({
     -- a release version so it downloads its prebuilt matcher
     { "saghen/blink.cmp", version = "1.*", dependencies = { "rafamadriz/friendly-snippets" } },
     "windwp/nvim-autopairs",
+    -- <button> gets its </button>; renaming a tag renames its pair (xml, html, jsx…)
+    "windwp/nvim-ts-autotag",
 
     -- popup listing what the keys you started typing can continue into
     "folke/which-key.nvim",
