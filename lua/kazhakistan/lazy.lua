@@ -1,0 +1,80 @@
+-- Plugins (lazy.nvim). Their settings live in after/plugin/<name>.lua, which
+-- runs after every plugin here has loaded. Exact versions: lazy-lock.json
+-- (committed); :Lazy update moves them, :Lazy restore goes back to the lock.
+
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.uv.fs_stat(lazypath) then
+    local out = vim.fn.system({
+        "git", "clone", "--filter=blob:none", "--branch=stable",
+        "https://github.com/folke/lazy.nvim.git", lazypath,
+    })
+    if vim.v.shell_error ~= 0 then
+        vim.api.nvim_echo({ { "Failed to clone lazy.nvim:\n", "ErrorMsg" }, { out, "WarningMsg" } }, true, {})
+        return
+    end
+end
+vim.opt.rtp:prepend(lazypath)
+
+require("lazy").setup({
+    -- Telescope
+    { "nvim-telescope/telescope.nvim", branch = "master", dependencies = { "nvim-lua/plenary.nvim" } },
+
+    -- Colorschemes (kazhakistan.theme picks one)
+    { "rose-pine/neovim", name = "rose-pine" },
+    "nyoom-engineering/oxocarbon.nvim",
+    "kdheepak/monochrome.nvim",
+    "ficd0/ashen.nvim",
+    { "sainnhe/gruvbox-material", name = "gruvbox" },
+
+    -- Treesitter: new API; parsers via lua/kazhakistan/treesitter.lua
+    { "nvim-treesitter/nvim-treesitter", branch = "main", build = ":TSUpdate" },
+
+    "kazhakistan/cheatsheet.nvim",
+
+    "theprimeagen/vim-be-good",
+    "theprimeagen/harpoon",
+    "mbbill/undotree",
+    "tpope/vim-fugitive",
+
+    -- LSP
+    "neovim/nvim-lspconfig",
+    "williamboman/mason.nvim",
+    "williamboman/mason-lspconfig.nvim",
+    "seblyng/roslyn.nvim",
+    "jlcrochet/vim-razor",
+
+    -- completion: LSP, paths, words, snippets (friendly-snippets) in one plugin;
+    -- a release version so it downloads its prebuilt matcher
+    { "saghen/blink.cmp", version = "1.*", dependencies = { "rafamadriz/friendly-snippets" } },
+    "windwp/nvim-autopairs",
+
+    -- popup listing what the keys you started typing can continue into
+    "folke/which-key.nvim",
+
+    -- changed lines in the sign column, hunk preview / stage / blame
+    "lewis6991/gitsigns.nvim",
+
+    "rmagatti/auto-session",
+    "ahmedkhalf/project.nvim",
+
+    -- databases
+    "tpope/vim-dadbod",
+    "kristijanhusak/vim-dadbod-ui",
+    "kristijanhusak/vim-dadbod-completion",
+
+    { "delphinus/md-render.nvim", dependencies = { "nvim-tree/nvim-web-devicons" } },
+
+    -- Debugger UI (lldb-dap for Xcode projects: lua/kazhakistan/xcode)
+    { "rcarriga/nvim-dap-ui", dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" } },
+    -- variable values next to the code while stopped in the debugger
+    { "theHamsta/nvim-dap-virtual-text", dependencies = { "mfussenegger/nvim-dap" } },
+}, {
+    -- everything loads at startup, like packer did
+    defaults = { lazy = false },
+    install = { missing = true },
+    -- no colorscheme during the first install: kazhakistan.theme sets it
+    ui = { border = "rounded" },
+    change_detection = { notify = false },
+    checker = { enabled = false },
+    rocks = { enabled = false },
+})

@@ -1,3 +1,3 @@
 require("kazhakistan.remap")
 require("kazhakistan.set")
-require("kazhakistan.packer")
+require("kazhakistan.lazy")

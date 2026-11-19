@@ -125,7 +125,7 @@ function M.setup()
     local ok_dap, dap = pcall(require, "dap")
     local ok_ui, dapui = pcall(require, "dapui")
     if not (ok_dap and ok_ui) then
-        notify("nvim-dap / nvim-dap-ui missing: run :PackerSync", vim.log.levels.ERROR)
+        notify("nvim-dap / nvim-dap-ui missing: run :Lazy sync", vim.log.levels.ERROR)
         return false
     end
     local cmd = lldb_dap()
