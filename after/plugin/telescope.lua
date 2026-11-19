@@ -21,8 +21,3 @@ vim.keymap.set('n', '<C-p>', builtin.git_files, { desc = 'Git find files' })
 vim.keymap.set('n', '<leader>ps', function()
 	builtin.live_grep();
 end, { desc = 'Telescope grep' })
-
-pcall(function()
-  require("telescope").load_extension("projects")
-end)
-

@@ -1,9 +1,2 @@
-local ok, project = pcall(require, "project_nvim")
-if not ok then return end
-
-project.setup({
-  patterns = { ".git", "Makefile", "*.sln", "package.json", "pyproject.toml" },
-  silent_chdir = true,
-  scope_chdir = "global",
-})
-
+-- project roots, working directory, <leader>pp: lua/kazhakistan/projects.lua
+require("kazhakistan.projects").setup()

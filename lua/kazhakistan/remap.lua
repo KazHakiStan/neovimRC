@@ -56,7 +56,7 @@ vim.keymap.set("n", "<M-,>", "gT", { desc = "Tab: prev" })
 vim.keymap.set("n", "<M-.>", "gt", { desc = "Tab: next" })
 
 vim.keymap.set("n", "<leader>pp", function()
-  require("telescope").extensions.projects.projects({})
+  require("kazhakistan.projects").pick()
 end, { desc = "Projects: switch" })
 
 vim.keymap.set("n", "<leader>ss", "<cmd>AutoSession save<cr>", { desc = "Session: save" })

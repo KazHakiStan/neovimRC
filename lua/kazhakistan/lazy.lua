@@ -57,7 +57,6 @@ require("lazy").setup({
     "lewis6991/gitsigns.nvim",
 
     "rmagatti/auto-session",
-    "ahmedkhalf/project.nvim",
 
     -- databases
     "tpope/vim-dadbod",
