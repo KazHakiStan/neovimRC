@@ -53,7 +53,11 @@ if ok_blink then
 end
 
 -- lsp.servers in the settings (~/.config/kazrc/nvim.lua)
-local servers = lsp_settings.servers
+local servers = vim.tbl_filter(function(name)
+  -- powershell_es runs through pwsh: without it (macOS by default) opening a
+  -- .ps1 would throw instead of just going without a server
+  return name ~= "powershell_es" or vim.fn.executable("pwsh") == 1
+end, lsp_settings.servers)
 
 -- Extend each server config with your local defaults.
 -- (These configs are provided by nvim-lspconfig under runtimepath, and Neovim merges them.)
