@@ -12,7 +12,6 @@ wk.setup({
 
 wk.add({
     { "<leader>c", group = "cheatsheet / code" },
-    { "<leader>d", group = "database (or \"_d: delete without yanking)" },
     { "<leader>g", group = "git" },
     { "<leader>h", group = "harpoon" },
     { "<leader>m", group = "markdown" },

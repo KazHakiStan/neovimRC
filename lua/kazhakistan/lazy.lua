@@ -53,6 +53,9 @@ local spec = {
     -- popup listing what the keys you started typing can continue into
     "folke/which-key.nvim",
 
+    -- formatting: <leader>f, and on save where the project has a formatter config
+    "stevearc/conform.nvim",
+
     -- changed lines in the sign column, hunk preview / stage / blame
     "lewis6991/gitsigns.nvim",
 

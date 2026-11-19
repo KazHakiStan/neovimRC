@@ -26,12 +26,7 @@ return {
         updatetime = 50,
     },
 
-    theme = {
-        -- :Theme cycles through these; keep them in step with WezTerm's
-        -- (~/.config/kazrc/wezterm.lua) so both switch together
-        order = { "ashen", "aegis-lavender", "aegis-gold", "metaphor-light" },
-        default = "ashen",
-    },
+    -- theme order and default: ~/.config/kazrc/themes.lua, shared with WezTerm
 
     completion = {
         -- Tab while the list is open: "select" moves through it (Enter accepts),
@@ -47,6 +42,20 @@ return {
         markers = { "Makefile", "package.json", "pyproject.toml", "*.sln" },
     },
 
+    format = {
+        -- format on save, only where the project has the formatter's config
+        -- (.clang-format...), so nobody else's code gets restyled. <leader>f
+        -- formats by hand, :FormatToggle switches saving on / off for now.
+        on_save = true,
+        -- formatters per filetype (conform.nvim names, :help conform-formatters)
+        by_filetype = {
+            c = { "clang_format" },
+            cpp = { "clang_format" },
+            objc = { "clang_format" },
+            objcpp = { "clang_format" },
+        },
+    },
+
     -- delay before which-key lists how a started key sequence continues
     key_hints_delay_ms = 400,
 
@@ -58,8 +67,8 @@ return {
         -- language servers to start (nvim-lspconfig names)
         servers = { "clangd", "jdtls", "pyright", "ts_ls", "lua_ls", "vimls", "html", "cssls",
             "rust_analyzer", "powershell_es" },
-        -- the ones Mason installs (jdtls needs Java: install it yourself)
-        install = { "clangd", "pyright", "ts_ls", "lua_ls", "vimls", "html", "cssls",
+        -- the ones Mason installs (jdtls runs on Java 21+)
+        install = { "clangd", "jdtls", "pyright", "ts_ls", "lua_ls", "vimls", "html", "cssls",
             "rust_analyzer", "powershell_es" },
         -- on top of any server's config (what vim.lsp.config takes), e.g.
         --   clangd = { cmd = { "clangd", "--query-driver=C:/msys64/ucrt64/bin/g++.exe" } },

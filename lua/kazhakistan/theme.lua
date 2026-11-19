@@ -7,9 +7,9 @@ local M = {}
 
 M.state_file = vim.fn.expand("~/.config/kazrc/theme.json")
 local legacy_file = vim.fn.expand("~/.config/theme.json") -- before kazrc
--- theme.order / theme.default in the settings (~/.config/kazrc/nvim.lua)
-M.order = require("kazhakistan.kazrc").get().theme.order
-M.default = require("kazhakistan.kazrc").get().theme.default
+-- order and default: ~/.config/kazrc/themes.lua, shared with WezTerm
+M.order = require("kazhakistan.kazrc").themes().order
+M.default = require("kazhakistan.kazrc").themes().default
 M.current = nil
 
 -- ashen palette keys remapped to the aegis-lavender picture
@@ -147,6 +147,15 @@ M.themes = {
         hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
         hl("CursorLineNr", { fg = gold.red_glowing, bold = true })
     end,
+    -- legacy: gruvbox over the Silent Hunter 5 screenshot in WezTerm; to become
+    -- a theme of its own in kazRC (and leave the defaults)
+    ["silent-hunter"] = function()
+        vim.o.background = "dark"
+        vim.g.gruvbox_material_transparent_background = 1
+        vim.cmd.colorscheme("gruvbox-material")
+        vim.g.gruvbox_material_transparent_background = nil
+        transparent()
+    end,
     ["metaphor-light"] = function()
         vim.o.background = "light"
         vim.g.gruvbox_material_colors_override = metaphor_light
@@ -161,6 +170,20 @@ M.themes = {
         metaphor_light_semantics()
     end,
 }
+
+-- names in themes.lua that this config has no theme for: skipped, reported
+do
+    local known = vim.tbl_filter(function(n)
+        if M.themes[n] then return true end
+        require("kazhakistan.kazrc").problem("themes.lua: no theme `" .. tostring(n) .. "` in nvim")
+        return false
+    end, M.order)
+    M.order = #known > 0 and known or { "ashen" }
+    if not M.themes[M.default] then
+        require("kazhakistan.kazrc").problem("themes.lua: default `" .. tostring(M.default) .. "` isn't a theme")
+        M.default = M.order[1]
+    end
+end
 
 -- old names still found in theme.json
 local legacy = { light = "metaphor-light" }

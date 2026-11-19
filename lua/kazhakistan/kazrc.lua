@@ -9,6 +9,25 @@ local M = {}
 
 M.dir = vim.fs.normalize(vim.fn.expand("~/.config/kazrc"))
 M.file = M.dir .. "/nvim.lua"
+M.themes_file = M.dir .. "/themes.lua"
+
+-- Shared with WezTerm through ~/.config/kazrc/themes.lua (weztermRC writes the
+-- same template; keep these defaults in step with its kazrc.lua).
+local THEME_DEFAULTS = {
+    order = { "ashen", "aegis-lavender", "aegis-gold", "metaphor-light", "silent-hunter" },
+    default = "ashen",
+}
+local THEMES_TEMPLATE = {
+    "-- Themes shared by nvim and WezTerm (neovimRC + weztermRC). Below are the",
+    "-- defaults, commented out: uncomment what you change. WezTerm applies it on",
+    "-- save, nvim on the next start.",
+    "return {",
+    "--     -- LEADER t (WezTerm) and :Theme (nvim) cycle through these",
+    '--     order = { "ashen", "aegis-lavender", "aegis-gold", "metaphor-light", "silent-hunter" },',
+    "--     -- the theme before any is chosen",
+    '--     default = "ashen",',
+    "}",
+}
 
 local function defaults_file()
     return vim.api.nvim_get_runtime_file("lua/kazhakistan/defaults.lua", false)[1]
@@ -80,6 +99,29 @@ local function create(src)
     if not lines then return end
     vim.fn.mkdir(M.dir, "p")
     pcall(vim.fn.writefile, lines, M.file)
+end
+
+local themes
+-- { order, default } from ~/.config/kazrc/themes.lua over THEME_DEFAULTS
+function M.themes()
+    if themes then return themes end
+    if not vim.uv.fs_stat(M.themes_file) then
+        vim.fn.mkdir(M.dir, "p")
+        pcall(vim.fn.writefile, THEMES_TEMPLATE, M.themes_file)
+    end
+    local user = {}
+    local ok, res = pcall(dofile, M.themes_file)
+    if not ok then
+        problems[#problems + 1] = (tostring(res):gsub("^.-themes%.lua:", "themes.lua:"))
+    elseif type(res) == "table" then
+        user = res
+    end
+    themes = merge(THEME_DEFAULTS, user, "themes")
+    return themes
+end
+
+function M.problem(msg)
+    problems[#problems + 1] = msg
 end
 
 local settings

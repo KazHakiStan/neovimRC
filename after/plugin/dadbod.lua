@@ -14,7 +14,7 @@ vim.g.dbs = vim.g.dbs or {
 }
 
 -- Enable dadbod completion via built-in omnifunc for SQL buffers
--- (works even if you don't have nvim-cmp)
+-- (blink.cmp completes SQL from dadbod too: after/plugin/blink.lua)
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "sql", "mysql", "plsql" },
   callback = function()

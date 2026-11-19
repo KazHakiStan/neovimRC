@@ -39,4 +39,35 @@ function M.clangd_cmd()
     return { "clangd" }
 end
 
+-- A JDK new enough for jdtls (21+): JAVA_HOME if it is one, else the usual
+-- install places (macOS java_home, Scoop, Adoptium / Microsoft installers,
+-- /usr/lib/jvm). nil when there's none.
+local function java_major(home)
+    local exe = home .. "/bin/java" .. (M.is_windows and ".exe" or "")
+    if vim.fn.executable(exe) == 0 then return 0 end
+    local out = vim.system({ exe, "-version" }, { text = true }):wait()
+    return tonumber(((out.stderr or "") .. (out.stdout or "")):match('version "(%d+)')) or 0
+end
+
+function M.jdk(min)
+    min = min or 21
+    local candidates = {}
+    if vim.env.JAVA_HOME then candidates[1] = vim.env.JAVA_HOME end
+    if M.is_macos then
+        local r = vim.system({ "/usr/libexec/java_home", "-v", min .. "+" }, { text = true }):wait()
+        if r.code == 0 then table.insert(candidates, 1, vim.trim(r.stdout)) end
+    end
+    local globs = M.is_windows
+        and { "~/scoop/apps/temurin*-jdk/current", "~/scoop/apps/openjdk*/current",
+              "C:/Program Files/Eclipse Adoptium/jdk-*", "C:/Program Files/Microsoft/jdk-*" }
+        or { "/usr/lib/jvm/*", "~/Library/Java/JavaVirtualMachines/*/Contents/Home",
+             "/Library/Java/JavaVirtualMachines/*/Contents/Home" }
+    for _, g in ipairs(globs) do
+        vim.list_extend(candidates, vim.fn.glob(vim.fn.expand(g), false, true))
+    end
+    for _, home in ipairs(candidates) do
+        if java_major(home) >= min then return home end
+    end
+end
+
 return M

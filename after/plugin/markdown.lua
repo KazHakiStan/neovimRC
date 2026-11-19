@@ -22,3 +22,33 @@ vim.api.nvim_create_autocmd("FileType", {
         end)
     end,
 })
+
+-- Reading is the default: markdown opens rendered. i/a/o (md-render's own)
+-- and here every normal-mode edit (dd, x, p, u, ...) switch to the source
+-- and do it there instead of failing on the read-only view. Leaving insert
+-- mode renders again; after a normal-mode edit <leader>mr goes back.
+local EDIT_KEYS = { "x", "X", "s", "S", "C", "D", "r", "R", "p", "P", "J", "d", "c", ">", "<", "=", "~",
+    "u", "<C-r>", "." }
+
+vim.keymap.set("n", "<leader>mr", "<Plug>(md-render-toggle)", { desc = "Markdown: rendered / source" })
+
+vim.api.nvim_create_autocmd("BufEnter", {
+    group = vim.api.nvim_create_augroup("MarkdownRenderEdits", { clear = true }),
+    callback = function(event)
+        if not vim.api.nvim_buf_get_name(event.buf):match(" %[render%]$") then return end
+        if vim.b[event.buf].kaz_edit_keys then return end
+        -- only on md-render's auto views (they map i/a/o the same way)
+        local i_map = vim.fn.maparg("i", "n", false, true)
+        if not (i_map.buffer == 1 and (i_map.desc or ""):find("^md%-render auto")) then return end
+        vim.b[event.buf].kaz_edit_keys = true
+        for _, key in ipairs(EDIT_KEYS) do
+            vim.keymap.set("n", key, function()
+                local count = vim.v.count > 0 and tostring(vim.v.count) or ""
+                require("md-render").preview.toggle()
+                vim.schedule(function()
+                    vim.api.nvim_feedkeys(count .. vim.keycode(key), "n", false)
+                end)
+            end, { buffer = event.buf, desc = "Markdown: switch to the source, then " .. key })
+        end
+    end,
+})
