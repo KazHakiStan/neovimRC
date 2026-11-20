@@ -63,6 +63,13 @@ return {
         line_blame = false, -- blame at the end of every line (<leader>gB toggles)
     },
 
+    updates = {
+        -- "release": new versions of this config (tags), "latest": every
+        -- commit on master, "off": no checks. :KazUpdate takes an update.
+        follow = "release",
+        check_hours = 24, -- how often nvim looks, in the background
+    },
+
     lsp = {
         -- language servers to start (nvim-lspconfig names)
         servers = { "clangd", "jdtls", "pyright", "ts_ls", "lua_ls", "vimls", "html", "cssls",
