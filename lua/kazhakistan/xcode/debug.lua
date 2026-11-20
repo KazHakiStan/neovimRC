@@ -1,5 +1,6 @@
--- lldb-dap (ships with Xcode) + nvim-dap-ui for kazhakistan.xcode, laid out
--- like Xcode's debugger in the Xcode tab (tab.lua):
+-- lldb-dap (ships with Xcode) + nvim-dap-ui, laid out like Xcode's debugger
+-- in the Xcode tab (tab.lua). kazhakistan.xcode launches Mac apps under it,
+-- kazhakistan.android attaches to an app's process on a device (remote).
 --
 --   ┌ stack ──────┬ code ───────────────────────────┐
 --   │ breakpoints │                                 │
@@ -13,14 +14,28 @@ local M = {}
 local HINT = " F5 ▶ continue  F10 over  F11 into  F12 out  F9 ● breakpoint  S-F5 ■ stop   <leader>xh help"
 
 local ready = false
+-- debugging a process on another device (Android): no Mac app to bring forward
+local remote = false
+-- what F5 starts with no session: the last module that debugged (Xcode by default)
+M.starter = nil
+-- called when a session ends (Android stops its lldb-server)
+M.on_end = nil
 
 local function notify(msg, level)
     vim.notify(msg, level or vim.log.levels.INFO, { title = "Xcode debug" })
 end
 
+-- Xcode's on macOS; elsewhere LLVM's (PATH, the LLVM installer, Scoop)
 local function lldb_dap()
-    local r = vim.system({ "xcrun", "-f", "lldb-dap" }, { text = true }):wait()
-    if r.code == 0 and r.stdout ~= "" then return vim.trim(r.stdout) end
+    if vim.fn.has("mac") == 1 then
+        local r = vim.system({ "xcrun", "-f", "lldb-dap" }, { text = true }):wait()
+        if r.code == 0 and r.stdout ~= "" then return vim.trim(r.stdout) end
+    end
+    if vim.fn.exepath("lldb-dap") ~= "" then return vim.fn.exepath("lldb-dap") end
+    for _, p in ipairs({ "C:/Program Files/LLVM/bin/lldb-dap.exe", "~/scoop/apps/llvm/current/bin/lldb-dap.exe" }) do
+        local path = vim.fs.normalize(vim.fn.expand(p))
+        if vim.fn.executable(path) == 1 then return path end
+    end
 end
 
 -- key hint above the variables (dap-ui recreates windows on every open)
@@ -58,6 +73,9 @@ local NSLOG_PREFIX = "\n%d%d%d%d%-%d%d%-%d%d %d%d:%d%d:%d%d%.%d+[+-]%d%d%d%d [^\
 local function on_output(_, body)
     if body.category == "telemetry" then return end
     local text = body.output or ""
+    -- Android: Xcode's lldb can't read the compressed debug sections of the
+    -- system libraries and says so for each of them; nothing to act on
+    if text:find("No LZMA support found", 1, true) then return end
     if body.category == "stdout" or body.category == "stderr" then
         text = ("\n" .. text):gsub(NSLOG_PREFIX, "\n"):sub(2)
     end
@@ -79,7 +97,7 @@ end
 -- starting up and has no window to show yet.
 local function focus_app(tries)
     local pid = app_pid
-    if not pid then return end
+    if not pid or remote then return end
     tries = tries or 6
     local js = ("ObjC.import('AppKit'); $.NSRunningApplication.runningApplicationWithProcessIdentifier(%d)"
         .. ".activateWithOptions($.NSApplicationActivateAllWindows)"):format(pid)
@@ -130,7 +148,9 @@ function M.setup()
     end
     local cmd = lldb_dap()
     if not cmd then
-        notify("lldb-dap not found (is Xcode selected? xcode-select -p)", vim.log.levels.ERROR)
+        notify(vim.fn.has("mac") == 1 and "lldb-dap not found (is Xcode selected? xcode-select -p)"
+            or "lldb-dap not found: install LLVM (scoop install llvm, or the installer from llvm.org)",
+            vim.log.levels.ERROR)
         return false
     end
     dap.adapters["lldb-dap"] = { type = "executable", command = cmd, name = "lldb-dap" }
@@ -187,6 +207,13 @@ function M.setup()
         app_pid = nil
         notify("app exited with code " .. tostring(body and body.exitCode))
     end
+    dap.listeners.after.event_terminated.xcode = function()
+        if M.on_end then
+            local f = M.on_end
+            M.on_end = nil
+            pcall(f)
+        end
+    end
     dap.listeners.after.event_process.xcode = function(_, body)
         app_pid = body and body.systemProcessId
         focus_app()
@@ -203,7 +230,24 @@ function M.setup()
     return true
 end
 
+-- attach to a running process: { name, pid, initCommands } (Android: the
+-- platform connect commands), on_end when the session is over
+function M.attach(o, on_end)
+    remote = true
+    M.on_end = on_end
+    require("dap.repl").clear()
+    require("dap").run({
+        type = "lldb-dap",
+        request = "attach",
+        name = o.name,
+        pid = o.pid,
+        initCommands = o.initCommands,
+        postRunCommands = o.postRunCommands,
+    })
+end
+
 function M.launch(o)
+    remote = false
     local env = {}
     for k, v in pairs(o.env or {}) do env[#env + 1] = k .. "=" .. tostring(v) end
     require("dap.repl").clear()
@@ -228,7 +272,7 @@ function M.continue()
         require("dap").continue()
         focus_app()
     else
-        require("kazhakistan.xcode").debug()
+        (M.starter or require("kazhakistan.xcode").debug)()
     end
 end
 
@@ -238,7 +282,7 @@ end
 
 local function in_session(fn)
     return function()
-        if not session() then return notify("not debugging (<leader>xr starts)", vim.log.levels.WARN) end
+        if not session() then return notify("not debugging (<leader>xr Xcode, <leader>nD Android)", vim.log.levels.WARN) end
         fn()
     end
 end

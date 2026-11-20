@@ -112,6 +112,7 @@ local function is_gradle_root(dir)
     return exists(dir .. "/gradlew") and (exists(dir .. "/settings.gradle") or exists(dir .. "/settings.gradle.kts"))
 end
 
+local below -- defined after find_root
 local function find_root()
     local file = vim.api.nvim_buf_get_name(0)
     local start = (file ~= "" and vim.bo.buftype == "") and vim.fs.dirname(file) or vim.fn.getcwd()
@@ -120,8 +121,21 @@ local function find_root()
     for dir in vim.fs.parents(start) do
         if is_gradle_root(dir) then return dir end
     end
-    -- below the repo root, the shallowest one
-    local top = vim.fs.root(start, ".git") or norm(vim.fn.getcwd())
+    -- below the repo root, the shallowest one; from a submodule (third-party/x)
+    -- on to the repo around it
+    local tops = {}
+    for dir in vim.fs.parents(start .. "/.") do
+        if exists(dir .. "/.git") then tops[#tops + 1] = dir end
+    end
+    if #tops == 0 then tops[1] = norm(vim.fn.getcwd()) end
+    for _, top in ipairs(tops) do
+        local found = below(top)
+        if found then return found end
+    end
+end
+
+-- the shallowest Gradle project under `top`
+below = function(top)
     local best, best_depth
     for name, kind in vim.fs.dir(top, {
         depth = 4,
@@ -678,14 +692,16 @@ local function component(p, e, serial, id)
     return last
 end
 
--- (re)start the app with a fresh logcat
-local function launch(p, e, serial, id)
+-- (re)start the app with a fresh logcat; wait = until a debugger comes (-D)
+local function launch(p, e, serial, id, wait)
     adb(e, serial, { "shell", "am", "force-stop", id })
     logcat.start(e, serial, id, { repo = p.repo, module_dir = p.module_dir, sdk = e.sdk })
     local comp = component(p, e, serial, id)
     local ok
     if comp then
-        ok = adb(e, serial, { "shell", "am", "start", "-n", comp })
+        local args = { "shell", "am", "start" }
+        if wait then args[#args + 1] = "-D" end
+        ok = adb(e, serial, vim.list_extend(args, { "-n", comp }))
     else
         ok = adb(e, serial, { "shell", "monkey", "-p", id, "-c", "android.intent.category.LAUNCHER", "1" })
     end
@@ -734,6 +750,34 @@ function M.run(retried)
                 hide_build()
                 launch(p, e, serial, id)
             end)
+        end)
+    end)
+end
+
+-- build, install, start waiting for the debugger, attach lldb (C++)
+function M.debug()
+    with_project(function(p, e)
+        with_device(e, function(serial)
+            run_gradle(p, e, "debug", { ":" .. p.module .. ":install" .. cap(p.variant) }, serial, function(ok)
+                if not ok then return end
+                local id = application_id(p)
+                if not id then return notify("installed, but no output-metadata.json to find the app id in",
+                        vim.log.levels.ERROR) end
+                hide_build()
+                launch(p, e, serial, id, true)
+                require("kazhakistan.android.debug").attach(p, e, serial, id, true)
+            end)
+        end)
+    end)
+end
+
+-- attach lldb to the app as it runs now
+function M.attach()
+    with_project(function(p, e)
+        with_device(e, function(serial)
+            local id = (state.app and state.app.serial == serial and state.app.id) or application_id(p)
+            if not id then return notify("no app id yet: build it once (<leader>nr)", vim.log.levels.WARN) end
+            require("kazhakistan.android.debug").attach(p, e, serial, id, false)
         end)
     end)
 end
@@ -893,6 +937,8 @@ end
 local KEYS = {
     { "<leader>nr", function() M.run() end, "Build + install + run (+ logcat)" },
     { "<leader>nR", function() M.restart() end, "Restart the app without building" },
+    { "<leader>nD", function() M.debug() end, "Build + install + debug C++ (lldb, from the start)" },
+    { "<leader>na", function() M.attach() end, "Attach the C++ debugger to the running app" },
     { "<leader>nx", function() M.stop_app() end, "Stop the app" },
     { "<leader>nb", function() M.build() end, "Build (assemble)" },
     { "<leader>ns", function() M.sync() end, "Gradle sync (configure + dependencies)" },
@@ -930,7 +976,11 @@ function M.help()
         "  + pair a new phone over Wi-Fi (Android 11+, Wireless debugging)",
         "",
         "Build window: q close, L full log; errors go to quickfix (<leader>qo)",
-        "Command: :Android run|restart|stop|build|sync|test|devicetest|lint|clean|device|variant|logcat|mirror|info",
+        "Command: :Android run|restart|debug|attach|stop|build|sync|test|devicetest|lint|clean|device|variant|",
+        "         logcat|mirror|info",
+        "",
+        "Debugging (C++): the Xcode debugger's panels and keys, F5 continue, F9 breakpoint,",
+        "  F10 / F11 / F12 over / into / out, S-F5 stop (<leader>xh lists them)",
     })
     local width = 0
     for _, l in ipairs(lines) do width = math.max(width, vim.fn.strdisplaywidth(l)) end
@@ -949,12 +999,35 @@ function M.help()
 end
 
 local COMMANDS = {
-    run = M.run, restart = M.restart, stop = M.stop_app, build = M.build, sync = M.sync,
+    run = M.run, restart = M.restart, debug = M.debug, attach = M.attach, stop = M.stop_app, build = M.build, sync = M.sync,
     clean = M.clean, test = M.test, devicetest = M.device_test, lint = M.lint, device = M.pick_device, mirror = M.mirror, variant = M.pick_variant, logcat = logcat.toggle,
     log = M.log, info = M.info, help = M.help,
 }
 
+-- the debugger keys: on macOS kazhakistan.xcode sets them (same session
+-- either way), elsewhere they come from here
+local function debug_keys()
+    local function call(fn)
+        return function()
+            local dbg = require("kazhakistan.xcode.debug")
+            if dbg.setup() then dbg[fn]() end
+        end
+    end
+    for _, k in ipairs({
+        { "<F5>", "continue", "<leader>xg" }, { "<S-F5>", "stop", "<leader>xq" },
+        { "<F9>", "toggle_breakpoint", "<leader>b" }, { "<F10>", "step_over", "<leader>xn" },
+        { "<F11>", "step_into", "<leader>xi" }, { "<F12>", "step_out", "<leader>xu" },
+        { "<leader>B", "conditional_breakpoint" }, { "<leader>xB", "clear_breakpoints" },
+        { "<leader>xC", "run_to_cursor" }, { "<leader>xe", "eval" }, { "<leader>xd", "toggle_ui" },
+        { "<leader>xv", "toggle_values" },
+    }) do
+        vim.keymap.set("n", k[1], call(k[2]), { desc = "Debug: " .. k[2]:gsub("_", " ") })
+        if k[3] then vim.keymap.set("n", k[3], call(k[2]), { desc = "Debug: " .. k[2]:gsub("_", " ") }) end
+    end
+end
+
 function M.setup()
+    if not platform.is_macos then debug_keys() end
     for _, k in ipairs(KEYS) do vim.keymap.set("n", k[1], k[2], { desc = "Android: " .. k[3] }) end
     vim.api.nvim_create_user_command("Android", function(o)
         local fn = COMMANDS[o.args ~= "" and o.args or "help"]

@@ -561,6 +561,7 @@ end
 function M.debug()
     local dbg = require("kazhakistan.xcode.debug")
     if not dbg.setup() then return end
+    dbg.starter = nil -- F5 with no session starts Xcode debugging again
     dbg.stop()
     with_app(function(p, app)
         if app.platform ~= "macosx" then
