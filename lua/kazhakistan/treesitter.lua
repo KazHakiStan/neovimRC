@@ -12,6 +12,20 @@ local function ts()
     return ok and mod or nil
 end
 
+-- The tree-sitter CLI holds <cache>/tree-sitter/lock/<lang>.lock while it
+-- builds a parser and removes it when done. A build cut short (nvim closed
+-- mid-install) leaves it behind; the CLI clears such leftovers itself, except
+-- on Windows, where it can't delete the file it holds open, and every later
+-- build of that language fails. Remove them first: a lock a running build
+-- holds can't be deleted on Windows, so this only takes the stale ones.
+local function clear_stale_locks()
+    if vim.fn.has("win32") ~= 1 or not vim.env.LOCALAPPDATA then return end
+    local dir = vim.fs.joinpath(vim.env.LOCALAPPDATA, "tree-sitter", "lock")
+    for name, kind in vim.fs.dir(dir) do
+        if kind == "file" and name:match("%.lock$") then os.remove(vim.fs.joinpath(dir, name)) end
+    end
+end
+
 -- install whatever of M.parsers is missing; returns the async task (:wait() it)
 function M.install()
     local mod = ts()
@@ -21,7 +35,17 @@ function M.install()
             vim.log.levels.WARN)
         return
     end
+    clear_stale_locks()
     return mod.install(M.parsers)
+end
+
+-- parsers of M.parsers that aren't installed (setupRC reports them)
+function M.missing()
+    local mod = ts()
+    if not mod then return M.parsers end
+    local have = {}
+    for _, lang in ipairs(mod.get_installed("parsers")) do have[lang] = true end
+    return vim.tbl_filter(function(lang) return not have[lang] end, M.parsers)
 end
 
 -- Treesitter highlighting turns Vim's regex syntax off, but some of Vim's
