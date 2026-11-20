@@ -15,6 +15,7 @@ wk.add({
     { "<leader>g", group = "git" },
     { "<leader>h", group = "harpoon" },
     { "<leader>m", group = "markdown" },
+    { "<leader>n", group = "Android" },
     { "<leader>p", group = "project / find" },
     { "<leader>q", group = "quickfix" },
     { "<leader>s", group = "split / session" },
