@@ -1,6 +1,7 @@
--- Android devices: phones over USB (or Wi-Fi adb) and emulators, running or
--- not. Picking an emulator that isn't running starts it and waits until it
--- has booted.
+-- Android devices: phones over USB or Wi-Fi and emulators, running or not.
+-- Picking an emulator that isn't running starts it and waits until it has
+-- booted. Wi-Fi: a USB phone can switch over (then unplug it), and a new phone
+-- pairs with the code from Developer options > Wireless debugging (Android 11+).
 local D = {}
 
 local function notify(msg, level)
@@ -79,6 +80,60 @@ function D.start_avd(env, name, cb)
     end))
 end
 
+-- the phone's address on Wi-Fi (wlan0), for adb connect
+local function wifi_ip(env, serial)
+    local _, out = run({ env.adb, "-s", serial, "shell", "ip", "-f", "inet", "addr", "show", "wlan0" })
+    return out:match("inet (%d+%.%d+%.%d+%.%d+)")
+end
+
+-- a USB phone over Wi-Fi: adb listens on 5555 and connects to it
+local function switch_to_wifi(env, d, cb)
+    local ip = wifi_ip(env, d.serial)
+    if not ip then return notify(d.name .. " isn't on Wi-Fi", vim.log.levels.WARN) end
+    run({ env.adb, "-s", d.serial, "tcpip", "5555" })
+    vim.defer_fn(function()
+        local _, out = run({ env.adb, "connect", ip .. ":5555" })
+        if not out:match("connected to") then
+            return notify("adb connect " .. ip .. ":5555 failed: " .. vim.trim(out), vim.log.levels.ERROR)
+        end
+        notify(d.name .. " is on Wi-Fi (" .. ip .. ":5555): you can unplug it")
+        cb(ip .. ":5555", d.name)
+    end, 2000)
+end
+
+-- Wireless debugging (Android 11+): pair once with the code, then connect
+local function pair(env, cb)
+    vim.ui.input({ prompt = "Wireless debugging > Pair device with pairing code: IP:port " }, function(addr)
+        if not addr or vim.trim(addr) == "" then return end
+        vim.ui.input({ prompt = "Pairing code: " }, function(code)
+            if not code or vim.trim(code) == "" then return end
+            local _, out = run({ env.adb, "pair", vim.trim(addr), vim.trim(code) })
+            if not out:match("Successfully paired") then
+                return notify("adb pair failed: " .. vim.trim(out), vim.log.levels.ERROR)
+            end
+            local host = vim.trim(addr):match("^(.*):%d+$")
+            -- adb usually connects by itself (mDNS) in a moment; else ask for the port
+            vim.defer_fn(function()
+                for _, d in ipairs(D.connected(env)) do
+                    if d.state == "device" and (d.serial:find(host, 1, true) or d.serial:match("^adb%-")) then
+                        notify("paired and connected: " .. d.name)
+                        return cb(d.serial, d.name)
+                    end
+                end
+                vim.ui.input({ prompt = "Paired. Wireless debugging > IP address & port: ", default = host .. ":" },
+                    function(target)
+                        if not target or vim.trim(target) == "" then return end
+                        local _, res = run({ env.adb, "connect", vim.trim(target) })
+                        if not res:match("connected to") then
+                            return notify("adb connect failed: " .. vim.trim(res), vim.log.levels.ERROR)
+                        end
+                        cb(vim.trim(target), vim.trim(target))
+                    end)
+            end, 3000)
+        end)
+    end)
+end
+
 -- choose among connected devices and emulators that could be started
 function D.pick(env, pick, cb)
     local items, actions = {}, {}
@@ -97,6 +152,12 @@ function D.pick(env, pick, cb)
         end
         if d.avd then running[d.avd] = true end
         items[#items + 1] = label
+        -- over USB (not an emulator, not already Wi-Fi): offer the switch
+        if d.state == "device" and not d.emulator and not d.serial:match(":%d+$") and not d.serial:match("^adb%-") then
+            local wifi = ("⇄ %s over Wi-Fi  then unplug it"):format(d.name)
+            actions[wifi] = function() switch_to_wifi(env, d, cb) end
+            items[#items + 1] = wifi
+        end
     end
     for _, name in ipairs(D.avds(env)) do
         if not running[name] then
@@ -107,10 +168,9 @@ function D.pick(env, pick, cb)
             items[#items + 1] = label
         end
     end
-    if #items == 0 then
-        return notify("no devices: plug in a phone with USB debugging on, or create an emulator "
-            .. "in Android Studio (Device Manager)", vim.log.levels.WARN)
-    end
+    local pair_label = "+ pair a phone over Wi-Fi  Android 11+: Developer options > Wireless debugging"
+    actions[pair_label] = function() pair(env, cb) end
+    items[#items + 1] = pair_label
     pick("Android device", items, function(choice) actions[choice]() end)
 end
 

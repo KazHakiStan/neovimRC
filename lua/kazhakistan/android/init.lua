@@ -493,7 +493,9 @@ local function gradle_env(e, serial)
 end
 
 -- run Gradle tasks with the output in the build window; on_done(ok)
-local function run_gradle(p, e, label, tasks, serial, on_done)
+-- opts.report(p): after the build, puts its own results (tests, lint) in
+-- quickfix and says how it went; returns false when it found nothing
+local function run_gradle(p, e, label, tasks, serial, on_done, opts)
     if build.job then
         return notify("a build is already running (<leader>nk stops it)", vim.log.levels.WARN)
     end
@@ -540,10 +542,11 @@ local function run_gradle(p, e, label, tasks, serial, on_done)
             build.job = nil
             local n_err, n_warn = set_quickfix(p, build.raw)
             local success = r.code == 0
+            local reported = n_err == 0 and r.signal == 0 and opts and opts.report and opts.report(p)
             local verdict = success and "✔ succeeded" or (r.signal ~= 0 and "■ stopped" or "✘ failed")
             append({ "", ("%s in %.1fs · %d errors, %d warnings"):format(verdict, (vim.uv.now() - started) / 1000,
                 n_err, n_warn) })
-            if not success and r.signal == 0 then
+            if not success and r.signal == 0 and not reported then
                 notify(label .. " failed: " .. n_err .. " errors (quickfix)", vim.log.levels.ERROR)
                 if n_err > 0 then vim.cmd("botright copen") end
             end
@@ -552,6 +555,98 @@ local function run_gradle(p, e, label, tasks, serial, on_done)
     end)
     if not ok then return notify("cannot run Gradle: " .. tostring(job), vim.log.levels.ERROR) end
     build.job = job
+end
+
+---------------------------------------------------------------- tests and lint
+
+local frames = require("kazhakistan.android.frames")
+
+local function unescape(s)
+    return (s:gsub("&#(%d+);", function(n) return string.char(tonumber(n)) end)
+        :gsub("&lt;", "<"):gsub("&gt;", ">"):gsub("&quot;", '"'):gsub("&apos;", "'"):gsub("&amp;", "&"))
+end
+
+local function attr(attrs, name)
+    local v = attrs:match("%s" .. name .. '="(.-)"')
+    return v and unescape(v)
+end
+
+-- JUnit XML reports (unit tests, device tests): every failed test in
+-- quickfix, at the first line of its stack trace that's in the project
+local function test_report(dir, title)
+    return function(p)
+        local ctx = { repo = p.repo, module_dir = p.module_dir }
+        local items, total = {}, 0
+        for _, path in ipairs(vim.fn.glob(dir .. "/**/*.xml", false, true)) do
+            local xml = table.concat(vim.fn.readfile(path), "\n")
+            local pos = 1
+            while true do
+                local s1, e1, attrs, closed = xml:find("<testcase(.-)(/?)>", pos)
+                if not s1 then break end
+                total = total + 1
+                pos = e1 + 1
+                if closed ~= "/" then
+                    local s2, e2 = xml:find("</testcase>", pos, true)
+                    local body = xml:sub(pos, (s2 or #xml + 1) - 1)
+                    pos = (e2 or #xml) + 1
+                    local fattrs, stack = body:match("<failure(.-)>(.-)</failure>")
+                    if not fattrs then fattrs, stack = body:match("<error(.-)>(.-)</error>") end
+                    if fattrs then
+                        local name = ((attr(attrs, "classname") or ""):match("([^%.]+)$") or "?") .. "." .. (attr(attrs, "name") or "?")
+                        local message = (attr(fattrs, "message") or unescape(stack):match("^[^\n]*")):match("^[^\n]*")
+                        local item = { text = name .. ": " .. message, type = "E" }
+                        for line in unescape(stack):gmatch("[^\n]+") do
+                            local at = frames.resolve(line, ctx)
+                            if at then
+                                item.filename, item.lnum = at.filename, at.lnum
+                                break
+                            end
+                        end
+                        items[#items + 1] = item
+                    end
+                end
+            end
+        end
+        if total == 0 then return false end
+        vim.fn.setqflist({}, " ", { title = title, items = items })
+        if #items == 0 then
+            notify(("%s: all %d passed"):format(title, total))
+        else
+            notify(("%s: %d of %d failed (quickfix)"):format(title, #items, total), vim.log.levels.ERROR)
+            vim.cmd("botright copen")
+        end
+        return true
+    end
+end
+
+-- Android lint's XML report: every issue in quickfix, errors first
+local function lint_report(p)
+    local path = p.module_dir .. "/build/reports/lint-results-" .. p.variant .. ".xml"
+    if vim.fn.filereadable(path) == 0 then return false end
+    local xml = table.concat(vim.fn.readfile(path), "\n")
+    local errors, warnings = {}, {}
+    for attrs, body in xml:gmatch("<issue(%s.-)>(.-)</issue>") do -- not the <issues> around them
+        local severity = attr(attrs, "severity") or "Warning"
+        local loc = body:match("<location(.-)/?>") or ""
+        local file = attr(loc, "file")
+        if file and not file:match("^/") and not file:match("^%a:") then file = p.module_dir .. "/" .. file end
+        local item = {
+            filename = file, lnum = tonumber(attr(loc, "line")), col = tonumber(attr(loc, "column")),
+            text = ("%s [%s]"):format(attr(attrs, "message") or "", attr(attrs, "id") or "lint"),
+            type = (severity == "Error" or severity == "Fatal") and "E" or "W",
+        }
+        table.insert(item.type == "E" and errors or warnings, item)
+    end
+    local n_err, n_warn = #errors, #warnings
+    vim.fn.setqflist({}, " ", { title = "lint", items = vim.list_extend(errors, warnings) })
+    if n_err + n_warn == 0 then
+        notify("lint: nothing found")
+    else
+        notify(("lint: %d errors, %d warnings (quickfix)"):format(n_err, n_warn),
+            n_err > 0 and vim.log.levels.ERROR or vim.log.levels.WARN)
+        vim.cmd("botright copen")
+    end
+    return true
 end
 
 ---------------------------------------------------------------- the app
@@ -586,7 +681,7 @@ end
 -- (re)start the app with a fresh logcat
 local function launch(p, e, serial, id)
     adb(e, serial, { "shell", "am", "force-stop", id })
-    logcat.start(e, serial, id)
+    logcat.start(e, serial, id, { repo = p.repo, module_dir = p.module_dir, sdk = e.sdk })
     local comp = component(p, e, serial, id)
     local ok
     if comp then
@@ -662,9 +757,53 @@ function M.stop_app()
     end)
 end
 
+-- the device's screen on the computer (scrcpy), mouse and keyboard included
+function M.mirror()
+    if vim.fn.executable("scrcpy") ~= 1 then
+        return notify("scrcpy isn't installed: brew install scrcpy / scoop install scrcpy (setupRC has it)",
+            vim.log.levels.WARN)
+    end
+    with_project(function(_, e)
+        with_device(e, function(serial)
+            local ok, err = pcall(vim.system, { "scrcpy", "-s", serial, "--window-title", state.device or serial,
+                "--stay-awake" }, { detach = true, env = { ADB = e.adb } })
+            if not ok then return notify("scrcpy: " .. tostring(err), vim.log.levels.ERROR) end
+            notify("mirroring " .. (state.device or serial))
+        end)
+    end)
+end
+
 function M.build()
     with_project(function(p, e)
         run_gradle(p, e, "build", { ":" .. p.module .. ":assemble" .. cap(p.variant) }, state.serial)
+    end)
+end
+
+-- unit tests (JVM, no device)
+function M.test()
+    with_project(function(p, e)
+        local task = "test" .. cap(p.variant) .. "UnitTest"
+        run_gradle(p, e, "unit tests", { ":" .. p.module .. ":" .. task }, nil, function(ok) if ok then hide_build() end end,
+            { report = test_report(p.module_dir .. "/build/test-results/" .. task, "unit tests") })
+    end)
+end
+
+-- instrumented tests on the device
+function M.device_test()
+    with_project(function(p, e)
+        with_device(e, function(serial)
+            run_gradle(p, e, "device tests", { ":" .. p.module .. ":connected" .. cap(p.variant) .. "AndroidTest" },
+                serial, function(ok) if ok then hide_build() end end, {
+                    report = test_report(p.module_dir .. "/build/outputs/androidTest-results/connected", "device tests"),
+                })
+        end)
+    end)
+end
+
+function M.lint()
+    with_project(function(p, e)
+        run_gradle(p, e, "lint", { ":" .. p.module .. ":lint" .. cap(p.variant) }, nil, function(ok) if ok then hide_build() end end,
+            { report = lint_report })
     end)
 end
 
@@ -757,11 +896,15 @@ local KEYS = {
     { "<leader>nx", function() M.stop_app() end, "Stop the app" },
     { "<leader>nb", function() M.build() end, "Build (assemble)" },
     { "<leader>ns", function() M.sync() end, "Gradle sync (configure + dependencies)" },
+    { "<leader>nt", function() M.test() end, "Unit tests (failures in quickfix)" },
+    { "<leader>nT", function() M.device_test() end, "Tests on the device (failures in quickfix)" },
+    { "<leader>nn", function() M.lint() end, "Lint (issues in quickfix)" },
     { "<leader>nc", function() M.clean() end, "Clean" },
     { "<leader>nk", function() M.stop_build() end, "Stop the running build" },
     { "<leader>nd", function() M.pick_device() end, "Pick device / start an emulator" },
     { "<leader>nv", function() M.pick_variant() end, "Pick module and variant" },
     { "<leader>nl", function() logcat.toggle() end, "Show / hide logcat" },
+    { "<leader>nm", function() M.mirror() end, "Mirror the device's screen (scrcpy)" },
     { "<leader>nL", function() M.log() end, "Full log of the last build" },
     { "<leader>ni", function() M.info() end, "Project, device, SDK, JDK" },
     { "<leader>nh", function() M.help() end, "This help" },
@@ -779,11 +922,15 @@ function M.help()
     vim.list_extend(lines, {
         "",
         "Logcat window",
+        "  <CR> open the stack frame     t   whole trace to quickfix",
         "  a   app only / everything    f   filter by text",
         "  c   clear                    q   close (keeps running)",
         "",
+        "Devices (<leader>nd): ● connected, ○ emulator to start, ⇄ USB phone to Wi-Fi,",
+        "  + pair a new phone over Wi-Fi (Android 11+, Wireless debugging)",
+        "",
         "Build window: q close, L full log; errors go to quickfix (<leader>qo)",
-        "Command: :Android run|restart|stop|build|sync|clean|device|variant|logcat|info",
+        "Command: :Android run|restart|stop|build|sync|test|devicetest|lint|clean|device|variant|logcat|mirror|info",
     })
     local width = 0
     for _, l in ipairs(lines) do width = math.max(width, vim.fn.strdisplaywidth(l)) end
@@ -803,7 +950,7 @@ end
 
 local COMMANDS = {
     run = M.run, restart = M.restart, stop = M.stop_app, build = M.build, sync = M.sync,
-    clean = M.clean, device = M.pick_device, variant = M.pick_variant, logcat = logcat.toggle,
+    clean = M.clean, test = M.test, devicetest = M.device_test, lint = M.lint, device = M.pick_device, mirror = M.mirror, variant = M.pick_variant, logcat = logcat.toggle,
     log = M.log, info = M.info, help = M.help,
 }
 

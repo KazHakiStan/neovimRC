@@ -119,6 +119,34 @@ if java_wanted then
   })
 end
 
+-- kotlin-lsp (JetBrains) is about 1 GB, so it isn't installed up front: the
+-- first Kotlin file says how, and it starts as soon as Mason has it
+local kotlin_wanted = vim.tbl_contains(servers, "kotlin_lsp")
+servers = vim.tbl_filter(function(name) return name ~= "kotlin_lsp" end, servers)
+if kotlin_wanted then
+  local function kotlin_installed()
+    return vim.fn.executable("intellij-server") == 1
+  end
+  if kotlin_installed() then
+    vim.lsp.enable("kotlin_lsp")
+  else
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = "kotlin",
+      once = true,
+      callback = function()
+        vim.notify("Kotlin: no language server yet. :MasonInstall kotlin-lsp (about 1 GB, once)",
+          vim.log.levels.INFO)
+      end,
+    })
+    require("mason-registry"):on("package:install:success", vim.schedule_wrap(function(pkg)
+      if pkg.name == "kotlin-lsp" then vim.lsp.enable("kotlin_lsp") end
+    end))
+  end
+end
+
+-- library code that "go to definition" lands in (jar:///…!/x.class)
+require("kazhakistan.jar").setup()
+
 -- Finally enable all configs
 vim.lsp.enable(servers)
 

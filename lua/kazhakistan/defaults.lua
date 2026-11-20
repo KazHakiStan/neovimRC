@@ -72,9 +72,10 @@ return {
 
     lsp = {
         -- language servers to start (nvim-lspconfig names)
-        servers = { "clangd", "jdtls", "pyright", "ts_ls", "lua_ls", "vimls", "html", "cssls",
+        servers = { "clangd", "jdtls", "kotlin_lsp", "pyright", "ts_ls", "lua_ls", "vimls", "html", "cssls",
             "rust_analyzer", "powershell_es" },
-        -- the ones Mason installs (jdtls runs on Java 21+)
+        -- the ones Mason installs (jdtls runs on Java 21+; kotlin_lsp, about
+        -- 1 GB, is left to :MasonInstall kotlin-lsp)
         install = { "clangd", "jdtls", "pyright", "ts_ls", "lua_ls", "vimls", "html", "cssls",
             "rust_analyzer", "powershell_es" },
         -- on top of any server's config (what vim.lsp.config takes), e.g.
