@@ -1,4 +1,4 @@
--- Shared themes (synced with wezterm): ashen, aegis-lavender, aegis-gold, demifiend, atomic-heart, metaphor-light
+-- Shared themes (synced with wezterm): ashen, aegis-lavender, aegis-gold, demifiend, atomic-heart, illusive-man, metaphor-light
 --   :Theme            cycle
 --   :Theme <name>     set
 --   :Theme list       show all (current marked with *)

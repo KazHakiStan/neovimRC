@@ -88,6 +88,25 @@ local atomic = {
     blue_dark         = "#4F6378",
 }
 
+-- The Illusive Man (assets/illusive-man-glass.png in wezterm): Paragon blue,
+-- the star's ice, a warm ember; errors in Renegade red
+local illusive = {
+    red_flame         = "#FF5F6A", -- errors: Renegade red
+    red_glowing       = "#A4CEF9", -- strings: ice
+    red_ember         = "#4A9FE0", -- main accent / ANSI red: Paragon blue
+    orange_glow       = "#7FD8F0", -- CurSearch / ANSI green: cyan corona
+    orange_blaze      = "#E8A050", -- constants: the ember
+    orange_smolder    = "#E8C070", -- ANSI yellow
+    orange_golden     = "#F0B040", -- warnings
+    red_kindling      = "#6AB4EC",
+    red_burnt_crimson = "#3A80C0",
+    red_brick         = "#2E5E98",
+    red_deep_ember    = "#2E476C",
+    red_ashen         = "#1F3152",
+    blue              = "#7A8CE0", -- indigo
+    blue_dark         = "#46529A",
+}
+
 -- metaphor-light: gruvbox-material recoloured for the parchment print in wezterm.
 -- Full Metaphor palette (also the terminal ANSI colours in wezterm):
 local mp = {
@@ -198,6 +217,13 @@ M.themes = {
         hl("StatusLineNC", { bg = "#121212", fg = atomic.red_ashen, bold = true })
         hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
         hl("CursorLineNr", { fg = atomic.red_glowing, bold = true })
+    end,
+    ["illusive-man"] = function()
+        load_ashen(illusive)
+        transparent()
+        hl("StatusLineNC", { bg = "#121212", fg = illusive.red_ashen, bold = true })
+        hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
+        hl("CursorLineNr", { fg = illusive.red_glowing, bold = true })
     end,
     -- legacy: gruvbox over the Silent Hunter 5 screenshot in WezTerm; to become
     -- a theme of its own in kazRC (and leave the defaults)
