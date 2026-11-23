@@ -107,6 +107,64 @@ local illusive = {
     blue_dark         = "#46529A",
 }
 
+-- SMT V: Vengeance, Taito (assets/smtvv-taito.png in wezterm):
+-- ultramarine, shafts of cyan light, a pale sand
+local taito = {
+    red_flame         = "#FF5F6A", -- errors
+    red_glowing       = "#A0D7ED", -- strings: light shafts
+    red_ember         = "#6F8CFF", -- main accent / ANSI red: ultramarine
+    orange_glow       = "#7FE0F0", -- CurSearch / ANSI green: cyan
+    orange_blaze      = "#B0C4FF", -- constants: pale blue
+    orange_smolder    = "#E8D8A0", -- ANSI yellow: sand
+    orange_golden     = "#F0C060", -- warnings
+    red_kindling      = "#8CA4FF",
+    red_burnt_crimson = "#4A67D0",
+    red_brick         = "#3A4FB6",
+    red_deep_ember    = "#2D33A1",
+    red_ashen         = "#232A6E",
+    blue              = "#4FB0E0",
+    blue_dark         = "#2E6A9A",
+}
+
+-- Persona 4, the Midnight Channel studio (assets/persona4-tv.png in
+-- wezterm): TV yellow, stage-light amber, the screens' blue glow
+local p4 = {
+    red_flame         = "#FF5A4A", -- errors
+    red_glowing       = "#FBF250", -- strings: the screens' yellow
+    red_ember         = "#F4C430", -- main accent / ANSI red: Persona 4 yellow
+    orange_glow       = "#FFE89A", -- CurSearch / ANSI green: stage light
+    orange_blaze      = "#E8873A", -- constants: amber
+    orange_smolder    = "#D6A92C", -- ANSI yellow: gold
+    orange_golden     = "#F0B030", -- warnings
+    red_kindling      = "#F0D050",
+    red_burnt_crimson = "#B5942A",
+    red_brick         = "#976A1D",
+    red_deep_ember    = "#76561D",
+    red_ashen         = "#5A4515",
+    blue              = "#5AA0D8", -- the screens' blue
+    blue_dark         = "#2E5E8A",
+}
+
+-- Cyberpunk 2077: Phantom Liberty, Songbird before the red sphere
+-- (assets/cyberpunk-songbird.png in wezterm): neon red, netrunner cyan, a
+-- touch of Cyberpunk yellow; errors hot pink so they part from the accent
+local songbird = {
+    red_flame         = "#FF4D8D", -- errors: hot pink
+    red_glowing       = "#5FC8D8", -- strings: netrunner cyan
+    red_ember         = "#E62E4B", -- main accent / ANSI red: neon red
+    orange_glow       = "#8FE0EC", -- CurSearch / ANSI green: pale cyan
+    orange_blaze      = "#FF6A7E", -- constants: light red
+    orange_smolder    = "#E8D44A", -- ANSI yellow: Cyberpunk yellow
+    orange_golden     = "#F0B040", -- warnings
+    red_kindling      = "#F04A62",
+    red_burnt_crimson = "#D41F32",
+    red_brick         = "#982129",
+    red_deep_ember    = "#6E2A30",
+    red_ashen         = "#562B2E",
+    blue              = "#3F8FA8", -- cable teal
+    blue_dark         = "#1A3A47",
+}
+
 -- metaphor-light: gruvbox-material recoloured for the parchment print in wezterm.
 -- Full Metaphor palette (also the terminal ANSI colours in wezterm):
 local mp = {
@@ -225,6 +283,27 @@ M.themes = {
         hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
         hl("CursorLineNr", { fg = illusive.red_glowing, bold = true })
     end,
+    ["smtvv-taito"] = function()
+        load_ashen(taito)
+        transparent()
+        hl("StatusLineNC", { bg = "#121212", fg = taito.red_ashen, bold = true })
+        hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
+        hl("CursorLineNr", { fg = taito.orange_glow, bold = true })
+    end,
+    ["persona4-tv"] = function()
+        load_ashen(p4)
+        transparent()
+        hl("StatusLineNC", { bg = "#121212", fg = p4.red_ashen, bold = true })
+        hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
+        hl("CursorLineNr", { fg = p4.red_glowing, bold = true })
+    end,
+    ["cyberpunk-songbird"] = function()
+        load_ashen(songbird)
+        transparent()
+        hl("StatusLineNC", { bg = "#121212", fg = songbird.red_ashen, bold = true })
+        hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
+        hl("CursorLineNr", { fg = songbird.red_glowing, bold = true })
+    end,
     -- legacy: gruvbox over the Silent Hunter 5 screenshot in WezTerm; to become
     -- a theme of its own in kazRC (and leave the defaults)
     ["silent-hunter"] = function()
@@ -263,8 +342,31 @@ do
     end
 end
 
--- old names still found in theme.json
-local legacy = { light = "metaphor-light" }
+-- short names by colour: :T mint = :T demifiend. Themes that share one form a
+-- group: :T blue asks which ("light" is also an old name in theme.json files)
+M.aliases = {
+    ["ashen"] = "red",
+    ["aegis-lavender"] = "lavender",
+    ["aegis-gold"] = "gold",
+    ["demifiend"] = "mint",
+    ["atomic-heart"] = "crimson",
+    ["illusive-man"] = "blue",
+    ["smtvv-taito"] = "blue",
+    ["persona4-tv"] = "yellow",
+    ["cyberpunk-songbird"] = "red",
+    ["metaphor-light"] = "light",
+    ["silent-hunter"] = "gruvbox",
+}
+
+-- a theme name or an alias -> the themes it means (in M.order)
+function M.matches(name)
+    if M.themes[name] then return { name } end
+    return vim.tbl_filter(function(n) return M.aliases[n] == name end, M.order)
+end
+
+local function label(name)
+    return M.aliases[name] and (name .. " (" .. M.aliases[name] .. ")") or name
+end
 
 local function read_state()
     local ok, lines = pcall(vim.fn.readfile, M.state_file)
@@ -273,10 +375,7 @@ local function read_state()
     end
     local ok2, data = pcall(vim.json.decode, table.concat(lines, "\n"))
     if ok2 and type(data) == "table" then
-        local name = legacy[data.theme] or data.theme
-        if M.themes[name] then
-            return name
-        end
+        return M.matches(data.theme)[1]
     end
     return nil
 end
@@ -292,14 +391,48 @@ function M.apply(name)
     M.current = name
 end
 
--- set theme and publish it to wezterm
-function M.set(name)
-    if not M.themes[name] then
-        vim.notify("Unknown theme: " .. tostring(name), vim.log.levels.ERROR)
-        return
+-- choose among a group's themes: arrows + <CR> (Telescope dropdown, typing
+-- filters), else vim.ui.select
+local function pick(alias, names, cb)
+    local labels = vim.tbl_map(label, names)
+    if not pcall(require, "telescope.pickers") then
+        return vim.ui.select(names, { prompt = alias, format_item = label }, function(n) if n then cb(n) end end)
     end
-    M.apply(name)
-    write_state(name)
+    local pickers, finders = require("telescope.pickers"), require("telescope.finders")
+    local conf = require("telescope.config").values
+    local actions, state = require("telescope.actions"), require("telescope.actions.state")
+    pickers.new(require("telescope.themes").get_dropdown({ previewer = false }), {
+        prompt_title = "Theme: " .. alias,
+        finder = finders.new_table({
+            results = names,
+            entry_maker = function(n)
+                local i = vim.fn.index(names, n) + 1
+                return { value = n, ordinal = labels[i], display = (n == M.current and "* " or "  ") .. labels[i] }
+            end,
+        }),
+        sorter = conf.generic_sorter({}),
+        attach_mappings = function(buf)
+            actions.select_default:replace(function()
+                local e = state.get_selected_entry()
+                actions.close(buf)
+                if e then cb(e.value) end
+            end)
+            return true
+        end,
+    }):find()
+end
+
+-- set theme (a name, or an alias: a group asks which) and publish it to wezterm
+function M.set(name)
+    local found = M.matches(name)
+    if #found == 0 then
+        vim.notify("Unknown theme: " .. tostring(name) .. " (:Theme list)", vim.log.levels.ERROR)
+    elseif #found > 1 then
+        pick(name, found, M.set)
+    else
+        M.apply(found[1])
+        write_state(found[1])
+    end
 end
 
 function M.cycle()
@@ -316,7 +449,7 @@ end
 function M.list()
     local lines = {}
     for _, n in ipairs(M.order) do
-        table.insert(lines, (n == M.current and "* " or "  ") .. n)
+        table.insert(lines, (n == M.current and "* " or "  ") .. label(n))
     end
     vim.api.nvim_echo({ { table.concat(lines, "\n") } }, false, {})
 end
@@ -364,7 +497,7 @@ function M.setup()
     M.sync()
     M.watch()
 
-    vim.api.nvim_create_user_command("Theme", function(opts)
+    local function command(opts)
         if opts.args == "" then
             M.cycle()
         elseif opts.args == "list" then
@@ -372,13 +505,23 @@ function M.setup()
         else
             M.set(opts.args)
         end
-    end, {
+    end
+    local spec = {
         nargs = "?",
-        complete = function()
-            return vim.list_extend({ "list" }, M.order)
+        complete = function(lead)
+            local items = { "list" }
+            for _, n in ipairs(M.order) do
+                items[#items + 1] = n
+                local alias = M.aliases[n]
+                if alias and not vim.tbl_contains(items, alias) then items[#items + 1] = alias end
+            end
+            return vim.tbl_filter(function(i) return vim.startswith(i, lead) end, items)
         end,
-        desc = "Set shared nvim/wezterm theme (no arg = cycle, list = show all)",
-    })
+        desc = "Set shared nvim/wezterm theme by name or alias (no arg = cycle, list = show all)",
+    }
+    vim.api.nvim_create_user_command("Theme", command, spec)
+    -- short form; an exact name wins over the other T… commands
+    vim.api.nvim_create_user_command("T", command, spec)
 end
 
 return M

@@ -1,7 +1,7 @@
--- Shared themes (synced with wezterm): ashen, aegis-lavender, aegis-gold, demifiend, atomic-heart, illusive-man, metaphor-light
---   :Theme            cycle
---   :Theme <name>     set
---   :Theme list       show all (current marked with *)
+-- Shared themes (synced with wezterm): ashen, aegis-lavender, aegis-gold, demifiend, atomic-heart, illusive-man, smtvv-taito, persona4-tv, cyberpunk-songbird, metaphor-light
+--   :Theme            cycle                (:T is the same command, shorter)
+--   :Theme <name>     set, by name or alias: :T mint = :Theme demifiend
+--   :Theme list       show all with aliases (current marked with *)
 local theme = require("kazhakistan.theme")
 
 -- TODO: your own colours inside the shared theme system. These helpers set
