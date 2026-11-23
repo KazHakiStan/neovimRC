@@ -50,6 +50,44 @@ local gold = {
     blue_dark         = "#3A6E60",
 }
 
+-- Demi-fiend (assets/demifiend.png in wezterm): jade markings and their mint
+-- glow, the chartreuse eyes, Pixie's blue; errors a clear red against the green
+local demifiend = {
+    red_flame         = "#FF5F5F", -- errors
+    red_glowing       = "#9EF0CC", -- strings: mint glow
+    red_ember         = "#35B88A", -- main accent / ANSI red: jade
+    orange_glow       = "#D8E070", -- CurSearch / ANSI green: the eyes
+    orange_blaze      = "#4FD1C5", -- constants: teal
+    orange_smolder    = "#E6C85A", -- ANSI yellow
+    orange_golden     = "#F0C040", -- warnings
+    red_kindling      = "#5CC9A0",
+    red_burnt_crimson = "#2E9E78",
+    red_brick         = "#24785C",
+    red_deep_ember    = "#1F5A42",
+    red_ashen         = "#174A35",
+    blue              = "#5A9FD4", -- Pixie's blue
+    blue_dark         = "#2A5E7A",
+}
+
+-- Atomic Heart (assets/atomic-heart.png in wezterm): Soviet red, gold,
+-- brass, chrome and one cool steel blue
+local atomic = {
+    red_flame         = "#FF4A4A", -- errors
+    red_glowing       = "#E0B562", -- strings: gold
+    red_ember         = "#C8283C", -- main accent / ANSI red: the star
+    orange_glow       = "#ECD9B0", -- CurSearch / ANSI green: pale gold
+    orange_blaze      = "#D88A5A", -- constants: copper
+    orange_smolder    = "#C8924A", -- ANSI yellow: brass
+    orange_golden     = "#F0B030", -- warnings
+    red_kindling      = "#D8485A",
+    red_burnt_crimson = "#A82034",
+    red_brick         = "#8A1E2E",
+    red_deep_ember    = "#6B1F2A",
+    red_ashen         = "#5A1A24",
+    blue              = "#8FA3B8", -- steel
+    blue_dark         = "#4F6378",
+}
+
 -- metaphor-light: gruvbox-material recoloured for the parchment print in wezterm.
 -- Full Metaphor palette (also the terminal ANSI colours in wezterm):
 local mp = {
@@ -146,6 +184,20 @@ M.themes = {
         hl("StatusLineNC", { bg = "#121212", fg = gold.red_ashen, bold = true })
         hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
         hl("CursorLineNr", { fg = gold.red_glowing, bold = true })
+    end,
+    ["demifiend"] = function()
+        load_ashen(demifiend)
+        transparent()
+        hl("StatusLineNC", { bg = "#121212", fg = demifiend.red_ashen, bold = true })
+        hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
+        hl("CursorLineNr", { fg = demifiend.orange_glow, bold = true })
+    end,
+    ["atomic-heart"] = function()
+        load_ashen(atomic)
+        transparent()
+        hl("StatusLineNC", { bg = "#121212", fg = atomic.red_ashen, bold = true })
+        hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
+        hl("CursorLineNr", { fg = atomic.red_glowing, bold = true })
     end,
     -- legacy: gruvbox over the Silent Hunter 5 screenshot in WezTerm; to become
     -- a theme of its own in kazRC (and leave the defaults)

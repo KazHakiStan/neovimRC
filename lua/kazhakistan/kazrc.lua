@@ -14,7 +14,7 @@ M.themes_file = M.dir .. "/themes.lua"
 -- Shared with WezTerm through ~/.config/kazrc/themes.lua (weztermRC writes the
 -- same template; keep these defaults in step with its kazrc.lua).
 local THEME_DEFAULTS = {
-    order = { "ashen", "aegis-lavender", "aegis-gold", "metaphor-light", "silent-hunter" },
+    order = { "ashen", "aegis-lavender", "aegis-gold", "demifiend", "atomic-heart", "metaphor-light", "silent-hunter" },
     default = "ashen",
 }
 local THEMES_TEMPLATE = {
@@ -23,7 +23,7 @@ local THEMES_TEMPLATE = {
     "-- save, nvim on the next start.",
     "return {",
     "--     -- LEADER t (WezTerm) and :Theme (nvim) cycle through these",
-    '--     order = { "ashen", "aegis-lavender", "aegis-gold", "metaphor-light", "silent-hunter" },',
+    '--     order = { "ashen", "aegis-lavender", "aegis-gold", "demifiend", "atomic-heart", "metaphor-light", "silent-hunter" },',
     "--     -- the theme before any is chosen",
     '--     default = "ashen",',
     "}",
