@@ -2,6 +2,7 @@
 --   :Theme            cycle                (:T is the same command, shorter)
 --   :Theme <name>     set, by name or alias: :T mint = :Theme demifiend
 --   :Theme list       show all with aliases (current marked with *)
+--   :Theme blur       blur the WezTerm picture on/off (themes that have one)
 local theme = require("kazhakistan.theme")
 
 -- TODO: your own colours inside the shared theme system. These helpers set

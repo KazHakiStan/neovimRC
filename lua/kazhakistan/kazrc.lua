@@ -16,6 +16,16 @@ M.themes_file = M.dir .. "/themes.lua"
 local THEME_DEFAULTS = {
     order = { "ashen", "aegis-lavender", "aegis-gold", "demifiend", "atomic-heart", "illusive-man", "smtvv-taito", "persona4-tv", "cyberpunk-songbird", "metaphor-light", "silent-hunter" },
     default = "ashen",
+    -- themes with a blurred (-glass) picture, and whether it is on by default;
+    -- :T blur (nvim) and LEADER g (WezTerm) switch it for the current theme
+    glass = {
+        ["demifiend"] = true,
+        ["atomic-heart"] = true,
+        ["illusive-man"] = true,
+        ["smtvv-taito"] = false,
+        ["persona4-tv"] = false,
+        ["cyberpunk-songbird"] = false,
+    },
 }
 local THEMES_TEMPLATE = {
     "-- Themes shared by nvim and WezTerm (neovimRC + weztermRC). Below are the",
@@ -26,6 +36,12 @@ local THEMES_TEMPLATE = {
     '--     order = { "ashen", "aegis-lavender", "aegis-gold", "demifiend", "atomic-heart", "illusive-man", "smtvv-taito", "persona4-tv", "cyberpunk-songbird", "metaphor-light", "silent-hunter" },',
     "--     -- the theme before any is chosen",
     '--     default = "ashen",',
+    "--     -- themes with a blurred (-glass) picture, and whether it is on by default;",
+    "--     -- :T blur (nvim) and LEADER g (WezTerm) switch it for the current theme",
+    "--     glass = {",
+    '--         ["demifiend"] = true, ["atomic-heart"] = true, ["illusive-man"] = true,',
+    '--         ["smtvv-taito"] = false, ["persona4-tv"] = false, ["cyberpunk-songbird"] = false,',
+    "--     },",
     "}",
 }
 

@@ -368,21 +368,57 @@ local function label(name)
     return M.aliases[name] and (name .. " (" .. M.aliases[name] .. ")") or name
 end
 
-local function read_state()
+-- theme.json: { theme = name, glass = { [theme] = bool } } (blur switched per
+-- theme; WezTerm writes it too)
+local function read_json()
     local ok, lines = pcall(vim.fn.readfile, M.state_file)
     if not ok or #lines == 0 then
-        return nil
+        return {}
     end
     local ok2, data = pcall(vim.json.decode, table.concat(lines, "\n"))
-    if ok2 and type(data) == "table" then
-        return M.matches(data.theme)[1]
-    end
-    return nil
+    return (ok2 and type(data) == "table") and data or {}
+end
+
+local function read_state()
+    local theme = read_json().theme
+    return theme and M.matches(theme)[1] or nil
+end
+
+local function write_json(data)
+    vim.fn.mkdir(vim.fn.fnamemodify(M.state_file, ":h"), "p")
+    if type(data.glass) == "table" and next(data.glass) == nil then data.glass = nil end
+    vim.fn.writefile({ vim.json.encode(data) }, M.state_file)
 end
 
 local function write_state(name)
-    vim.fn.mkdir(vim.fn.fnamemodify(M.state_file, ":h"), "p")
-    vim.fn.writefile({ vim.json.encode({ theme = name }) }, M.state_file)
+    local data = read_json()
+    data.theme = name
+    write_json(data)
+end
+
+-- blur of the theme's WezTerm picture: nil if it has none (kazrc themes.lua
+-- glass), else what was switched or its default
+function M.glass(name)
+    local default = require("kazhakistan.kazrc").themes().glass[name]
+    if default == nil then return nil end
+    local switched = (read_json().glass or {})[name]
+    if switched ~= nil then return switched end
+    return default
+end
+
+-- :T blur: the current theme's WezTerm picture blurred or not
+function M.toggle_glass()
+    local name = M.current
+    local on = M.glass(name)
+    if on == nil then
+        return vim.notify(name .. " has no blurred picture", vim.log.levels.WARN)
+    end
+    local data = read_json()
+    data.glass = type(data.glass) == "table" and data.glass or {}
+    data.glass[name] = not on
+    data.theme = name
+    write_json(data)
+    vim.notify(name .. ": blur " .. (on and "off" or "on"))
 end
 
 function M.apply(name)
@@ -449,7 +485,9 @@ end
 function M.list()
     local lines = {}
     for _, n in ipairs(M.order) do
-        table.insert(lines, (n == M.current and "* " or "  ") .. label(n))
+        local glass = M.glass(n)
+        table.insert(lines, (n == M.current and "* " or "  ") .. label(n)
+            .. (glass == nil and "" or (glass and "  · blur" or "  · blur off")))
     end
     vim.api.nvim_echo({ { table.concat(lines, "\n") } }, false, {})
 end
@@ -502,6 +540,8 @@ function M.setup()
             M.cycle()
         elseif opts.args == "list" then
             M.list()
+        elseif opts.args == "blur" then
+            M.toggle_glass()
         else
             M.set(opts.args)
         end
@@ -509,7 +549,7 @@ function M.setup()
     local spec = {
         nargs = "?",
         complete = function(lead)
-            local items = { "list" }
+            local items = { "list", "blur" }
             for _, n in ipairs(M.order) do
                 items[#items + 1] = n
                 local alias = M.aliases[n]
@@ -517,7 +557,7 @@ function M.setup()
             end
             return vim.tbl_filter(function(i) return vim.startswith(i, lead) end, items)
         end,
-        desc = "Set shared nvim/wezterm theme by name or alias (no arg = cycle, list = show all)",
+        desc = "Set shared nvim/wezterm theme by name or alias (no arg = cycle, list = show all, blur = toggle the picture's blur)",
     }
     vim.api.nvim_create_user_command("Theme", command, spec)
     -- short form; an exact name wins over the other T… commands
