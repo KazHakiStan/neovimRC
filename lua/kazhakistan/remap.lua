@@ -44,10 +44,8 @@ vim.keymap.set("n", "<leader>=", "<C-w>=", { desc = "Resize: equalize" })
 vim.keymap.set("n", "<leader>sv", "<cmd>vsplit<cr>", { desc = "Split: vertical" })
 vim.keymap.set("n", "<leader>sh", "<cmd>split<cr>", { desc = "Split: horizontal" })
 
-vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Window: left" })
-vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Window: down" })
-vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Window: up" })
-vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Window: right" })
+-- <C-h/j/k/l>: windows, and on to WezTerm panes at the edge (kazhakistan/wezterm.lua)
+require("kazhakistan.wezterm").setup()
 
 vim.keymap.set("n", "<leader>tn", "<cmd>tabnew<cr>", { desc = "Tab: new" })
 vim.keymap.set("n", "<leader>tc", "<cmd>tabclose<cr>", { desc = "Tab: close" })

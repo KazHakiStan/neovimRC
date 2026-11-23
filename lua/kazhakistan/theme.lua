@@ -342,21 +342,9 @@ do
     end
 end
 
--- short names by colour: :T mint = :T demifiend. Themes that share one form a
--- group: :T blue asks which ("light" is also an old name in theme.json files)
-M.aliases = {
-    ["ashen"] = "red",
-    ["aegis-lavender"] = "lavender",
-    ["aegis-gold"] = "gold",
-    ["demifiend"] = "mint",
-    ["atomic-heart"] = "crimson",
-    ["illusive-man"] = "blue",
-    ["smtvv-taito"] = "blue",
-    ["persona4-tv"] = "yellow",
-    ["cyberpunk-songbird"] = "red",
-    ["metaphor-light"] = "light",
-    ["silent-hunter"] = "gruvbox",
-}
+-- short names by colour (kazrc themes.lua aliases, shared with WezTerm):
+-- :T mint = :T demifiend; themes that share one form a group
+M.aliases = require("kazhakistan.kazrc").themes().aliases
 
 -- a theme name or an alias -> the themes it means (in M.order)
 function M.matches(name)
@@ -427,35 +415,74 @@ function M.apply(name)
     M.current = name
 end
 
--- choose among a group's themes: arrows + <CR> (Telescope dropdown, typing
--- filters), else vim.ui.select
-local function pick(alias, names, cb)
-    local labels = vim.tbl_map(label, names)
+-- choose a theme: arrows + <CR> in a Telescope dropdown (typing filters by
+-- name or alias). Moving the selection previews the theme, in WezTerm too;
+-- <Esc> goes back to the one before. Without Telescope: vim.ui.select.
+local function pick(title, names)
+    local function display(n)
+        local glass = M.glass(n)
+        return (n == M.current and "* " or "  ") .. label(n)
+            .. (glass == nil and "" or (glass and "  · blur" or "  · blur off"))
+    end
     if not pcall(require, "telescope.pickers") then
-        return vim.ui.select(names, { prompt = alias, format_item = label }, function(n) if n then cb(n) end end)
+        return vim.ui.select(names, { prompt = title, format_item = display }, function(n)
+            if n then M.set(n) end
+        end)
     end
     local pickers, finders = require("telescope.pickers"), require("telescope.finders")
     local conf = require("telescope.config").values
     local actions, state = require("telescope.actions"), require("telescope.actions.state")
-    pickers.new(require("telescope.themes").get_dropdown({ previewer = false }), {
-        prompt_title = "Theme: " .. alias,
+    local before, shown, chosen = M.current, M.current, false
+    local function preview(n)
+        if not n or n == shown then return end
+        shown = n
+        -- a short pause, so holding an arrow doesn't reload WezTerm on every step
+        vim.defer_fn(function()
+            if shown == n and not chosen then
+                M.apply(n)
+                write_state(n)
+            end
+        end, 120)
+    end
+    local current = vim.fn.index(names, M.current) + 1
+    local picker = pickers.new(require("telescope.themes").get_dropdown({ previewer = false }), {
+        prompt_title = title .. "   <CR> set · <Esc> back",
         finder = finders.new_table({
             results = names,
             entry_maker = function(n)
-                local i = vim.fn.index(names, n) + 1
-                return { value = n, ordinal = labels[i], display = (n == M.current and "* " or "  ") .. labels[i] }
+                return { value = n, ordinal = label(n), display = display(n) }
             end,
         }),
         sorter = conf.generic_sorter({}),
+        default_selection_index = current > 0 and current or nil,
         attach_mappings = function(buf)
             actions.select_default:replace(function()
                 local e = state.get_selected_entry()
+                chosen = true
                 actions.close(buf)
-                if e then cb(e.value) end
+                if e then M.set(e.value) end
             end)
+            -- closed any other way: back to the theme from before
+            vim.api.nvim_create_autocmd("BufWipeout", {
+                buffer = buf,
+                once = true,
+                callback = vim.schedule_wrap(function()
+                    if not chosen and M.current ~= before then
+                        M.apply(before)
+                        write_state(before)
+                    end
+                end),
+            })
             return true
         end,
-    }):find()
+    })
+    local set_selection = picker.set_selection
+    picker.set_selection = function(self, row)
+        set_selection(self, row)
+        local e = self:get_selection()
+        if e then preview(e.value) end
+    end
+    picker:find()
 end
 
 -- set theme (a name, or an alias: a group asks which) and publish it to wezterm
@@ -464,21 +491,16 @@ function M.set(name)
     if #found == 0 then
         vim.notify("Unknown theme: " .. tostring(name) .. " (:Theme list)", vim.log.levels.ERROR)
     elseif #found > 1 then
-        pick(name, found, M.set)
+        pick("Theme: " .. name, found)
     else
         M.apply(found[1])
         write_state(found[1])
     end
 end
 
-function M.cycle()
-    local idx = 1
-    for i, n in ipairs(M.order) do
-        if n == M.current then
-            idx = i
-        end
-    end
-    M.set(M.order[idx % #M.order + 1])
+-- every theme to choose from (:T with no argument)
+function M.choose()
+    pick("Theme", M.order)
 end
 
 -- print every available theme, current one marked with *
@@ -537,7 +559,7 @@ function M.setup()
 
     local function command(opts)
         if opts.args == "" then
-            M.cycle()
+            M.choose()
         elseif opts.args == "list" then
             M.list()
         elseif opts.args == "blur" then
@@ -557,7 +579,7 @@ function M.setup()
             end
             return vim.tbl_filter(function(i) return vim.startswith(i, lead) end, items)
         end,
-        desc = "Set shared nvim/wezterm theme by name or alias (no arg = cycle, list = show all, blur = toggle the picture's blur)",
+        desc = "Set shared nvim/wezterm theme by name or alias (no arg = choose with a preview, list = show all, blur = toggle the picture's blur)",
     }
     vim.api.nvim_create_user_command("Theme", command, spec)
     -- short form; an exact name wins over the other T… commands

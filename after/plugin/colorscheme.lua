@@ -1,5 +1,5 @@
 -- Shared themes (synced with wezterm): ashen, aegis-lavender, aegis-gold, demifiend, atomic-heart, illusive-man, smtvv-taito, persona4-tv, cyberpunk-songbird, metaphor-light
---   :Theme            cycle                (:T is the same command, shorter)
+--   :Theme            choose, previewing as you move (:T is the same, shorter)
 --   :Theme <name>     set, by name or alias: :T mint = :Theme demifiend
 --   :Theme list       show all with aliases (current marked with *)
 --   :Theme blur       blur the WezTerm picture on/off (themes that have one)
