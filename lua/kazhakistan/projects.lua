@@ -95,12 +95,38 @@ local function cd(root)
     if vim.fn.getcwd(-1, -1) ~= root then vim.cmd.cd(vim.fn.fnameescape(root)) end
 end
 
--- Telescope picker: <CR> cd + find files, <C-d> forget the project
+-- switch to a project as if nvim had just started there: its directory, one
+-- window, an empty buffer with the intro. The other project's files close;
+-- ones with unsaved changes stay (hidden), so nothing is lost.
+function M.open(root)
+    cd(root)
+    M.remember(root)
+    vim.cmd("silent! only")
+    vim.cmd.enew()
+    local fresh = vim.api.nvim_get_current_buf()
+    local kept = 0
+    for _, b in ipairs(vim.api.nvim_list_bufs()) do
+        if b ~= fresh and vim.bo[b].buflisted and vim.bo[b].buftype == "" then
+            if vim.bo[b].modified then
+                kept = kept + 1
+            else
+                pcall(vim.api.nvim_buf_delete, b, {})
+            end
+        end
+    end
+    vim.cmd("intro")
+    if kept > 0 then
+        vim.notify(("%d unsaved buffer%s kept from before (:ls)"):format(kept, kept > 1 and "s" or ""),
+            vim.log.levels.WARN)
+    end
+end
+
+-- Telescope picker: <CR> open the project (M.open), <C-d> forget it
 function M.pick()
     local ok = pcall(require, "telescope")
     if not ok then
         return vim.ui.select(M.list(), { prompt = "Project" }, function(p)
-            if p then cd(p) end
+            if p then M.open(p) end
         end)
     end
     local pickers, finders = require("telescope.pickers"), require("telescope.finders")
@@ -129,9 +155,7 @@ function M.pick()
                 local e = state.get_selected_entry()
                 actions.close(buf)
                 if not e then return end
-                cd(e.value)
-                M.remember(e.value)
-                require("telescope.builtin").find_files({ cwd = e.value })
+                vim.schedule(function() M.open(e.value) end) -- after the picker has closed
             end)
             map({ "i", "n" }, "<C-d>", function()
                 local e = state.get_selected_entry()
