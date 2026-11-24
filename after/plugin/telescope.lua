@@ -21,3 +21,16 @@ vim.keymap.set('n', '<C-p>', builtin.git_files, { desc = 'Git find files' })
 vim.keymap.set('n', '<leader>ps', function()
 	builtin.live_grep();
 end, { desc = 'Telescope grep' })
+-- open buffers, last used first, the current one left out; <C-d> closes the
+-- selected one and stays in the list
+vim.keymap.set('n', '<leader>pb', function()
+    builtin.buffers({
+        sort_mru = true,
+        ignore_current_buffer = true,
+        attach_mappings = function(_, map)
+            local delete = require("telescope.actions").delete_buffer
+            map({ "i", "n" }, "<C-d>", delete)
+            return true
+        end,
+    })
+end, { desc = 'Open buffers (<C-d> closes one)' })
