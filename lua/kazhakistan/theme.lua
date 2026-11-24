@@ -67,6 +67,22 @@ local demifiend = {
     red_ashen         = "#174A35",
     blue              = "#5A9FD4", -- Pixie's blue
     blue_dark         = "#2A5E7A",
+    -- ashen's grays tinted toward the jade (same OKLab lightness, chroma 0.02);
+    -- the same values as demifiend's grays in wezterm's themes.lua
+    background        = "#0E1411",
+    g_0               = "#DEE8E3",
+    g_1               = "#DEE8E3",
+    g_2               = "#CDD8D3",
+    g_3               = "#AAB8B1",
+    g_4               = "#9CABA4",
+    g_5               = "#899891",
+    g_6               = "#697770",
+    g_7               = "#495750",
+    g_8               = "#2A3530",
+    g_9               = "#1B231F",
+    g_10              = "#171F1B",
+    g_11              = "#141B18",
+    g_12              = "#101714",
 }
 
 -- Atomic Heart (assets/atomic-heart.png in wezterm): Soviet red, gold,
@@ -86,6 +102,22 @@ local atomic = {
     red_ashen         = "#5A1A24",
     blue              = "#8FA3B8", -- steel
     blue_dark         = "#4F6378",
+    -- ashen's grays tinted toward the red star (same OKLab lightness, chroma 0.02);
+    -- the same values as this theme's grays in wezterm's themes.lua
+    background        = "#161010",
+    g_0               = "#EEE2E1",
+    g_1               = "#EEE2E1",
+    g_2               = "#DFD2D1",
+    g_3               = "#C0B0AF",
+    g_4               = "#B4A3A2",
+    g_5               = "#A0908F",
+    g_6               = "#7F6F6E",
+    g_7               = "#5E4F4E",
+    g_8               = "#3B2F2E",
+    g_9               = "#281E1E",
+    g_10              = "#231B1A",
+    g_11              = "#1E1717",
+    g_12              = "#1A1313",
 }
 
 -- The Illusive Man (assets/illusive-man-glass.png in wezterm): Paragon blue,
@@ -105,6 +137,22 @@ local illusive = {
     red_ashen         = "#1F3152",
     blue              = "#7A8CE0", -- indigo
     blue_dark         = "#46529A",
+    -- ashen's grays tinted toward Paragon blue (same OKLab lightness, chroma 0.02);
+    -- the same values as this theme's grays in wezterm's themes.lua
+    background        = "#0E1316",
+    g_0               = "#DEE6EE",
+    g_1               = "#DEE6EE",
+    g_2               = "#CDD7DF",
+    g_3               = "#AAB6C0",
+    g_4               = "#9DA9B3",
+    g_5               = "#8A96A0",
+    g_6               = "#6A757E",
+    g_7               = "#4A555E",
+    g_8               = "#2B333B",
+    g_9               = "#1B2228",
+    g_10              = "#181E23",
+    g_11              = "#141A1E",
+    g_12              = "#11161A",
 }
 
 -- SMT V: Vengeance, Taito (assets/smtvv-taito.png in wezterm):
@@ -124,6 +172,22 @@ local taito = {
     red_ashen         = "#232A6E",
     blue              = "#4FB0E0",
     blue_dark         = "#2E6A9A",
+    -- ashen's grays tinted toward the ultramarine (same OKLab lightness, chroma 0.02);
+    -- the same values as this theme's grays in wezterm's themes.lua
+    background        = "#101217",
+    g_0               = "#E2E5EE",
+    g_1               = "#E2E5EE",
+    g_2               = "#D1D5DF",
+    g_3               = "#AFB4C1",
+    g_4               = "#A2A7B4",
+    g_5               = "#8F94A1",
+    g_6               = "#6F737F",
+    g_7               = "#4F535F",
+    g_8               = "#2E323C",
+    g_9               = "#1E2128",
+    g_10              = "#1B1D23",
+    g_11              = "#17191F",
+    g_12              = "#13151A",
 }
 
 -- Persona 4, the Midnight Channel studio (assets/persona4-tv.png in
@@ -143,6 +207,22 @@ local p4 = {
     red_ashen         = "#5A4515",
     blue              = "#5AA0D8", -- the screens' blue
     blue_dark         = "#2E5E8A",
+    -- ashen's grays tinted toward Persona 4 yellow (same OKLab lightness, chroma 0.02);
+    -- the same values as this theme's grays in wezterm's themes.lua
+    background        = "#14120D",
+    g_0               = "#E9E5DC",
+    g_1               = "#E9E5DC",
+    g_2               = "#D9D5CA",
+    g_3               = "#B9B4A7",
+    g_4               = "#ACA799",
+    g_5               = "#999487",
+    g_6               = "#787366",
+    g_7               = "#575347",
+    g_8               = "#363228",
+    g_9               = "#242119",
+    g_10              = "#201D16",
+    g_11              = "#1B1913",
+    g_12              = "#17150F",
 }
 
 -- Cyberpunk 2077: Phantom Liberty, Songbird before the red sphere
@@ -163,6 +243,22 @@ local songbird = {
     red_ashen         = "#562B2E",
     blue              = "#3F8FA8", -- cable teal
     blue_dark         = "#1A3A47",
+    -- ashen's grays tinted toward the neon red (same OKLab lightness, chroma 0.02);
+    -- the same values as this theme's grays in wezterm's themes.lua
+    background        = "#161010",
+    g_0               = "#EEE2E2",
+    g_1               = "#EEE2E2",
+    g_2               = "#DFD1D1",
+    g_3               = "#C0B0AF",
+    g_4               = "#B4A2A2",
+    g_5               = "#A0908F",
+    g_6               = "#7F6F6E",
+    g_7               = "#5E4F4F",
+    g_8               = "#3B2F2E",
+    g_9               = "#281E1E",
+    g_10              = "#231B1B",
+    g_11              = "#1E1717",
+    g_12              = "#1A1313",
 }
 
 -- metaphor-light: gruvbox-material recoloured for the parchment print in wezterm.
@@ -241,6 +337,56 @@ local function load_ashen(colors)
     vim.cmd.colorscheme("ashen")
 end
 
+-- The active window in the cursor's colour (WezTerm's cursor_bg for the theme):
+-- file name in the status line, line numbers, ~ past the end; inactive windows
+-- take ashen's old active look. p: a palette with tinted grays (g_*,
+-- background); current: the current line's number, set apart from the rest.
+local function active_window(p, cursor, current)
+    hl("StatusLine", { bg = p.background, fg = cursor, bold = true })
+    hl("StatusLineNC", { bg = p.g_8, fg = p.g_5 })
+    hl("LineNr", { fg = cursor, bg = p.background })
+    hl("CursorLineNr", { fg = current, bold = true })
+    hl("EndOfBuffer", { fg = cursor })
+    hl("LineNrNC", { fg = p.g_6, bg = p.background })
+    hl("EndOfBufferNC", { fg = p.g_8 })
+end
+
+-- Clean mode (:T clean): windows painted in the theme's own background, so
+-- WezTerm's picture doesn't show through nvim at all. One switch for every
+-- theme, kept in theme.json (clean = true) so every running nvim follows.
+-- bg: windows and floats; nc: inactive windows, a shade apart.
+local ashen_clean = { bg = "#121212", nc = "#1d1d1d" } -- ashen's background, g_10
+local function tinted_clean(p) return { bg = p.background, nc = p.g_10 } end
+local clean_colors = {
+    ["ashen"]              = ashen_clean,
+    ["aegis-lavender"]     = ashen_clean,
+    ["aegis-gold"]         = ashen_clean,
+    ["demifiend"]          = tinted_clean(demifiend),
+    ["atomic-heart"]       = tinted_clean(atomic),
+    ["illusive-man"]       = tinted_clean(illusive),
+    ["smtvv-taito"]        = tinted_clean(taito),
+    ["persona4-tv"]        = tinted_clean(p4),
+    ["cyberpunk-songbird"] = tinted_clean(songbird),
+    ["silent-hunter"]      = { bg = "#282828", nc = "#1b1b1b" }, -- gruvbox-material bg0, bg_dim
+    ["metaphor-light"]     = { bg = "#fbf1c7", nc = "#f2e5bc" }, -- the same, light
+}
+
+-- a group as it resolves now, with another background
+local function with_bg(name, bg)
+    local h = vim.api.nvim_get_hl(0, { name = name, link = false })
+    h.bg = bg
+    hl(name, h)
+end
+
+local function paint_clean(name)
+    local c = clean_colors[name] or ashen_clean
+    with_bg("Normal", c.bg)
+    with_bg("NormalFloat", c.bg)
+    with_bg("NormalNC", c.nc)
+    -- inactive windows' number column on their own shade, not the active one's
+    with_bg("LineNrNC", c.nc)
+end
+
 M.themes = {
     ["ashen"] = function()
         load_ashen()
@@ -265,44 +411,38 @@ M.themes = {
     ["demifiend"] = function()
         load_ashen(demifiend)
         transparent()
-        hl("StatusLineNC", { bg = "#121212", fg = demifiend.red_ashen, bold = true })
-        hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
-        hl("CursorLineNr", { fg = demifiend.orange_glow, bold = true })
+        -- the eyes' chartreuse; the current line in the mint glow
+        active_window(demifiend, demifiend.orange_glow, demifiend.red_glowing)
     end,
     ["atomic-heart"] = function()
         load_ashen(atomic)
         transparent()
-        hl("StatusLineNC", { bg = "#121212", fg = atomic.red_ashen, bold = true })
-        hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
-        hl("CursorLineNr", { fg = atomic.red_glowing, bold = true })
+        -- the cursor's colour; the current line near-white
+        active_window(atomic, atomic.red_glowing, atomic.g_1)
     end,
     ["illusive-man"] = function()
         load_ashen(illusive)
         transparent()
-        hl("StatusLineNC", { bg = "#121212", fg = illusive.red_ashen, bold = true })
-        hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
-        hl("CursorLineNr", { fg = illusive.red_glowing, bold = true })
+        -- the cursor's pale blue; the current line near-white
+        active_window(illusive, illusive.red_glowing, illusive.g_1)
     end,
     ["smtvv-taito"] = function()
         load_ashen(taito)
         transparent()
-        hl("StatusLineNC", { bg = "#121212", fg = taito.red_ashen, bold = true })
-        hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
-        hl("CursorLineNr", { fg = taito.orange_glow, bold = true })
+        -- the cursor's pale blue; the current line near-white
+        active_window(taito, "#A0D7ED", taito.g_1)
     end,
     ["persona4-tv"] = function()
         load_ashen(p4)
         transparent()
-        hl("StatusLineNC", { bg = "#121212", fg = p4.red_ashen, bold = true })
-        hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
-        hl("CursorLineNr", { fg = p4.red_glowing, bold = true })
+        -- the cursor's colour; the current line near-white
+        active_window(p4, p4.red_glowing, p4.g_1)
     end,
     ["cyberpunk-songbird"] = function()
         load_ashen(songbird)
         transparent()
-        hl("StatusLineNC", { bg = "#121212", fg = songbird.red_ashen, bold = true })
-        hl("LineNr", { fg = "#aaaaaa", bg = "#121212" })
-        hl("CursorLineNr", { fg = songbird.red_glowing, bold = true })
+        -- the cursor's colour; the current line near-white
+        active_window(songbird, songbird.red_glowing, songbird.g_1)
     end,
     -- legacy: gruvbox over the Silent Hunter 5 screenshot in WezTerm; to become
     -- a theme of its own in kazRC (and leave the defaults)
@@ -409,10 +549,62 @@ function M.toggle_glass()
     vim.notify(name .. ": blur " .. (on and "off" or "on"))
 end
 
+-- Inactive windows: nvim has StatusLineNC but no LineNr/EndOfBuffer for them,
+-- so a theme may define LineNrNC and EndOfBufferNC and every window but the
+-- current one gets them through 'winhighlight'. Themes that don't fall back to
+-- the active groups (a link), so nothing changes for them.
+local nc_groups = { LineNr = "LineNrNC", CursorLineNr = "LineNrNC", EndOfBuffer = "EndOfBufferNC" }
+
+local function nc_fallbacks()
+    for _, nc in pairs({ "LineNrNC", "EndOfBufferNC" }) do
+        if vim.tbl_isempty(vim.api.nvim_get_hl(0, { name = nc })) then
+            hl(nc, { link = nc == "LineNrNC" and "LineNr" or "EndOfBuffer" })
+        end
+    end
+end
+
+-- add or drop our entries in a window's 'winhighlight', keeping anyone else's
+local function mark_inactive(win, inactive)
+    if not vim.api.nvim_win_is_valid(win) or vim.api.nvim_win_get_config(win).relative ~= "" then
+        return
+    end
+    local kept = vim.tbl_filter(function(entry)
+        local from, to = entry:match("^([^:]+):(.+)$")
+        return not (from and nc_groups[from] == to)
+    end, vim.split(vim.wo[win].winhighlight, ",", { trimempty = true }))
+    if inactive then
+        for from, to in pairs(nc_groups) do
+            table.insert(kept, from .. ":" .. to)
+        end
+    end
+    vim.wo[win].winhighlight = table.concat(kept, ",")
+end
+
+local function mark_windows()
+    local current = vim.api.nvim_get_current_win()
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+        mark_inactive(win, win ~= current)
+    end
+end
+
+M.clean_on = false
+
 function M.apply(name)
     name = M.themes[name] and name or M.default
     M.themes[name]()
+    nc_fallbacks()
+    if M.clean_on then paint_clean(name) end
     M.current = name
+end
+
+-- :T clean: every theme, every nvim (through theme.json)
+function M.toggle_clean()
+    M.clean_on = not M.clean_on
+    local data = read_json()
+    data.clean = M.clean_on or nil
+    write_json(data)
+    M.apply(M.current)
+    vim.notify("clean mode " .. (M.clean_on and "on" or "off"))
 end
 
 -- choose a theme: arrows + <CR> in a Telescope dropdown (typing filters by
@@ -511,12 +703,15 @@ function M.list()
         table.insert(lines, (n == M.current and "* " or "  ") .. label(n)
             .. (glass == nil and "" or (glass and "  · blur" or "  · blur off")))
     end
+    table.insert(lines, "clean mode " .. (M.clean_on and "on" or "off") .. "  (:T clean)")
     vim.api.nvim_echo({ { table.concat(lines, "\n") } }, false, {})
 end
 
 function M.sync()
     local name = read_state() or M.default
-    if name ~= M.current then
+    local clean = read_json().clean == true
+    if name ~= M.current or clean ~= M.clean_on then
+        M.clean_on = clean
         M.apply(name)
     end
 end
@@ -556,6 +751,10 @@ function M.setup()
     end
     M.sync()
     M.watch()
+    vim.api.nvim_create_autocmd({ "WinEnter", "BufWinEnter", "WinNew", "VimEnter" }, {
+        group = vim.api.nvim_create_augroup("kazhakistan_theme_inactive", { clear = true }),
+        callback = mark_windows,
+    })
 
     local function command(opts)
         if opts.args == "" then
@@ -564,6 +763,8 @@ function M.setup()
             M.list()
         elseif opts.args == "blur" then
             M.toggle_glass()
+        elseif opts.args == "clean" then
+            M.toggle_clean()
         else
             M.set(opts.args)
         end
@@ -571,7 +772,7 @@ function M.setup()
     local spec = {
         nargs = "?",
         complete = function(lead)
-            local items = { "list", "blur" }
+            local items = { "list", "blur", "clean" }
             for _, n in ipairs(M.order) do
                 items[#items + 1] = n
                 local alias = M.aliases[n]
@@ -579,7 +780,7 @@ function M.setup()
             end
             return vim.tbl_filter(function(i) return vim.startswith(i, lead) end, items)
         end,
-        desc = "Set shared nvim/wezterm theme by name or alias (no arg = choose with a preview, list = show all, blur = toggle the picture's blur)",
+        desc = "Set shared nvim/wezterm theme by name or alias (no arg = choose with a preview, list = show all, blur = toggle the picture's blur, clean = theme background instead of the picture)",
     }
     vim.api.nvim_create_user_command("Theme", command, spec)
     -- short form; an exact name wins over the other T… commands
